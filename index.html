@@ -1,160 +1,127 @@
 ﻿<!DOCTYPE html>
-<!--[if IE 8]>    <html class="ie8"> <![endif]-->
-<!--[if IE 9]>    <html class="ie9"> <![endif]-->
-<!--[if gt IE 9]><!--> <html> <!--<![endif]-->
 <head>
-<meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=10">
-<title>CSSG конвертер</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=10">
+    <title>CSSG конвертер</title>
 
-    <link href="/data/res/css/portal.css" rel="stylesheet">
-
-    <!-- Demo default -->
-    <link href="/core/css/core.css" rel="stylesheet">
-
-    <!--[if lt IE 9]><script src="/core/js/lib/html5shiv.js"></script><![endif]-->
-    <script data-main="/core/js/source" src="/core/js/lib/require-jquery.js"></script>
-    <!-- /Demo default -->
+    <meta name="keywords" content="CSS, CSSG, converter, tool, CSS-o-Gram">
+    <meta name="author" content="Evgeny Khoroshilov">
 
     <link href="css/cssg.css" rel="stylesheet">
 
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script type="text/javascript" src="js/cssg.js"></script>
-
-    <script type="text/javascript">
-        define('modules/inlineOptions', {
-            modulesEnabled : {
-                headerFooter : false,
-                specDecorations : false,
-                codeSource : false,
-                sectionFolding : false,
-                scrollToHash : false,
-                globalNav : false,
-                sections : false,
-                innerNavigation : false,
-                search: false,
-                trimSpaces : false
-            }
-        });
-    </script>
-
-    <style type="text/css">
-        .source_main_nav {
-            display: none !important;
-            }
-    </style>
 
 </head>
 <body>
-    <div class="source_container">
-    <div class="source_main source_col-main" role="main">
+<div class="holder">
 
-        <h1>CSSG конвертер</h1>
+    <h1>CSSG multipurpose converter</h1>
 
-        <p class="source_warn">v 0.0.8 alpha</p>
+    <p class="version">v 0.0.8 alpha</p>
 
-        <div class="cssg-converter">
+    <div class="cssg-converter">
 
-            <div class="head">
+        <div class="head">
 
-                <div class="settings">
-                    <div class="h">Settings</div>
-                    <div class="col">
-                        <label><input type="checkbox" name="autorecalc" checked>Auto recalculate</label>
-                    </div>
-                    <div class="col">
-                        <label><input type="checkbox" name="rulespace" checked>Rule space</label>
-                    </div>
-                    <div class="col">
-                        <label><input type="checkbox" name="trimtext" checked>Trim text</label>
-                    </div>
-                    <div class="col">
-                        <label><input type="checkbox" name="tagnames">Show tag names</label>
-                    </div>
-                    <br>
-                    <div class="col">
-                        <label>Modifier:</label>
-                        <label><input type="radio" value="0" name="modifier" checked>'__'</label>
-                        <label><input type="radio" value="1" name="modifier">'_'</label>
-                        <label><input type="radio" value="2" name="modifier">'--'</label>
-                        <label><input type="radio" value="3" name="modifier">'-'</label>
-                    </div>
-                    <div class="col">
-                        <label>Output:</label>
-                        <label><input type="radio" value="0" name="output" checked>cssg</label>
-                        <label><input type="radio" value="1" name="output">css</label>
-                        <label><input type="radio" value="2" name="output">haml</label>
-                    </div>
-                    <br>
-                    <div class="col">
-                        <label>Indentation:</label>
-                        <label><input type="radio" value="0" name="indentation" >tab</label>
-                        <label><input type="radio" value="1" name="indentation" checked>2 spaces</label>
-                        <label><input type="radio" value="2" name="indentation">4 spaces</label>
-                    </div>
-                    <div class="col">
-                        <label>Line height:</label>
-                        <label><input type="radio" value="0" name="lineheight">regular</label>
-                        <label><input type="radio" value="1" name="lineheight" checked>compact</label>
-                        <label><input type="radio" value="2" name="lineheight">loose</label>
-                    </div>
+            <div class="settings">
+                <div class="h">Settings</div>
+                <div class="col">
+                    <label><input type="checkbox" name="autorecalc" checked>Auto recalculate</label>
                 </div>
-
-                <div class="settings">
-                    <button id="cssgClear">Clear</button>
+                <div class="col">
+                    <label><input type="checkbox" name="rulespace" checked>Rule space</label>
                 </div>
-
+                <div class="col">
+                    <label><input type="checkbox" name="trimtext" checked>Trim text</label>
+                </div>
+                <div class="col">
+                    <label><input type="checkbox" name="tagnames">Show tag names</label>
+                </div>
+                <br>
+                <div class="col">
+                    <label>Modifier:</label>
+                    <label><input type="radio" value="0" name="modifier" checked>'__'</label>
+                    <label><input type="radio" value="1" name="modifier">'_'</label>
+                    <label><input type="radio" value="2" name="modifier">'--'</label>
+                    <label><input type="radio" value="3" name="modifier">'-'</label>
+                </div>
+                <div class="col">
+                    <label>Output:</label>
+                    <label><input type="radio" value="0" name="output" checked>cssg</label>
+                    <label><input type="radio" value="1" name="output">css</label>
+                    <label><input type="radio" value="2" name="output">haml</label>
+                </div>
+                <br>
+                <div class="col">
+                    <label>Indentation:</label>
+                    <label><input type="radio" value="0" name="indentation" >tab</label>
+                    <label><input type="radio" value="1" name="indentation" checked>2 spaces</label>
+                    <label><input type="radio" value="2" name="indentation">4 spaces</label>
+                </div>
+                <div class="col">
+                    <label>Line height:</label>
+                    <label><input type="radio" value="0" name="lineheight">regular</label>
+                    <label><input type="radio" value="1" name="lineheight" checked>compact</label>
+                    <label><input type="radio" value="2" name="lineheight">loose</label>
+                </div>
             </div>
 
-            <div class="body">
-
-                <div class="col input">
-                    <div class="h">Input</div>
-
-                    <div class="content">
-                        <textarea name="cssgInput" id="cssgInput" cols="30" rows="10">
-
-                            <div class="a b __c klass__d __g">
-
-                                <div class="e"></div>
-                                <div class="f"></div>
-
-                                <div class="gddddddddddddddddddddd __h"></div>
-
-                            </div>
-
-                            <div class="e eem-op">
-                                <div class="k beem--b">
-                                    <div class="l">
-                                        <div class="m __lll"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </textarea>
-                    </div>
-
-                </div><!--
-
-                --><div class="col output">
-                    <div class="h">Output</div>
-
-                    <div class="content">
-                        <textarea name="cssgOutput" id="cssgOutput" readonly cols="30" rows="10"></textarea>
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="foot">
-                <div class="controls">
-                    <button id="cssgInit">C, S, S, GO!</button>
-                </div>
+            <div class="settings">
+                <button id="cssgClear">Clear</button>
             </div>
 
         </div>
 
+        <div class="body">
+
+            <div class="col input">
+                <div class="h">Input</div>
+
+                <div class="content">
+                    <textarea name="cssgInput" id="cssgInput" cols="30" rows="10">
+
+                        <div class="a b __c klass__d __g">
+
+                            <div class="e"></div>
+                            <div class="f"></div>
+
+                            <div class="gddddddddddddddddddddd __h"></div>
+
+                        </div>
+
+                        <div class="e eem-op">
+                            <div class="k beem--b">
+                                <div class="l">
+                                    <div class="m __lll"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </textarea>
+                </div>
+
+            </div><!--
+
+            --><div class="col output">
+                <div class="h">Output</div>
+
+                <div class="content">
+                    <textarea name="cssgOutput" id="cssgOutput" readonly cols="30" rows="10"></textarea>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="foot">
+            <div class="controls">
+                <button id="cssgInit">C, S, S, GO!</button>
+            </div>
+        </div>
+
     </div>
-    </div>
+
+</div>
 </body>
 </html>
