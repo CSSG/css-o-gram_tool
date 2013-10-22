@@ -1,18 +1,42 @@
 
 @color: rgb(205, 205, 220);
+@light: rgb(100, 100, 110);
+
 @head-color: rgb(225, 225, 40);
 @border-color: rgb(200, 165, 25);
+
+body {
+    font: 14px/1.5 normal "Helvetica Neue", Arial, sans-serif;
+    color: #333;
+    }
+
+body, html {
+    background: #333;
+    }
+
 
 .monospace {
     font-family: "Courier New", monospace;
     }
 
-body {
-    font: 12px/1.5 normal Arial, sans-serif;
+
+.holder {
+    padding: 10px 2%;
+    }
+
+h1 {
+    font-size: 26px;
+    color: @color;
+
+    .version {
+        color: @light;
+        font-size: 10px;
+        padding-left: 2em;
+        }
     }
 
 .h {
-    font-size: 16px;
+    font-size: 18px;
     text-shadow: 1px 1px 1px rgba(0,0,0,.4);
     margin: 0 0 10px;
     color: @head-color;
