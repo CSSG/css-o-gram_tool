@@ -2,14 +2,14 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=10">
-    <title>CSSG конвертер</title>
+    <title>CSSG multipurpose converter</title>
 
     <meta name="keywords" content="CSS, CSSG, converter, tool, CSS-o-Gram">
     <meta name="author" content="Evgeny Khoroshilov">
 
     <link href="css/cssg.css" rel="stylesheet">
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="js/cssg.js"></script>
 
 </head>
@@ -26,46 +26,54 @@
 
             <div class="settings">
                 <div class="h">Settings</div>
-                <div class="col">
+                <div class="col cssg-setting">
                     <label><input type="checkbox" name="autorecalc" checked>Auto recalculate</label>
                 </div>
-                <div class="col">
+                <div class="col cssg-setting">
                     <label><input type="checkbox" name="rulespace" checked>Rule space</label>
                 </div>
-                <div class="col">
+                <div class="col cssg-setting">
                     <label><input type="checkbox" name="trimtext" checked>Trim text</label>
                 </div>
-                <div class="col">
-                    <label><input type="checkbox" name="tagnames">Show tag names</label>
+                <div class="col cssg-setting">
+                    <label><input type="checkbox" name="tagnames">Keep tag names</label>
                 </div>
                 <br>
-                <div class="col">
+                <div class="col cssg-setting">
                     <label>Modifier:</label>
                     <label><input type="radio" value="0" name="modifier" checked>'__'</label>
                     <label><input type="radio" value="1" name="modifier">'_'</label>
                     <label><input type="radio" value="2" name="modifier">'--'</label>
                     <label><input type="radio" value="3" name="modifier">'-'</label>
                 </div>
-                <div class="col">
+                <div class="col cssg-setting">
                     <label>Output:</label>
                     <label><input type="radio" value="0" name="output" checked>cssg</label>
                     <label><input type="radio" value="1" name="output">css</label>
                     <label><input type="radio" value="2" name="output">haml</label>
                 </div>
                 <br>
-                <div class="col">
+                <div class="col cssg-setting">
                     <label>Indentation:</label>
                     <label><input type="radio" value="0" name="indentation" >tab</label>
                     <label><input type="radio" value="1" name="indentation" checked>2 spaces</label>
                     <label><input type="radio" value="2" name="indentation">4 spaces</label>
                 </div>
-                <div class="col">
+                <div class="col cssg-setting">
                     <label>Line height:</label>
                     <label><input type="radio" value="0" name="lineheight">regular</label>
                     <label><input type="radio" value="1" name="lineheight" checked>compact</label>
                     <label><input type="radio" value="2" name="lineheight">loose</label>
                 </div>
             </div>
+
+            <!--
+            <div class="settings">
+                <div class="col cssg-filter">
+                    <input type="text" value="" name="baseclass" placeholder="base class" />
+                </div>
+            </div>
+            -->
 
             <div class="settings">
                 <button id="cssgClear">Clear</button>
