@@ -60,12 +60,12 @@ $(function(){
         ,this.cssgSetTrim = $('input[name="trimtext"]')
         ,this.cssgSetAuto = $('input[name="autorecalc"]')
         ,this.cssgSetTags = $('input[name="tagnames"]')
-        
+
         // interface controls
         ,this.cssgClear = $('#cssgClear')
         ,this.cssgInit = $('#cssgInit')
         
-        // aux
+        // state
         ,this.done = false
 
         // settings
@@ -117,6 +117,44 @@ $(function(){
         if(settings){
             this.settings = $.extend({}, this.settings, settings);
         }
+
+        // combine setters
+        this.cssgSetters = [
+            _this.cssgSetIndent
+            ,_this.cssgSetLine
+            ,_this.cssgSetMod
+            ,_this.cssgSetOutput
+            ,_this.cssgSetSpace
+            ,_this.cssgSetTrim
+            ,_this.cssgSetAuto
+            ,_this.cssgSetTags
+        ];
+
+        for(var i=0; i<_this.cssgSetters.length; i++){
+            var 
+                setter = _this.cssgSetters[i],
+                setterName = setter.get(0).name,
+                setterType = setter.get(0).type;
+
+            //console.log(setter.get(0).name);
+
+            switch(setterType){
+                case 'radio':
+                    setter.on('click', function(){
+                        this.checked = 'checked';
+                        _this.setValue(setterName, setter.filter(':checked').val());
+                        _this.recalc();
+                    });
+                    break;
+                case 'checkbox':
+                    setter.on('change', function(){
+                        _this.setValue(setterName, this.checked ? true : false);
+                        _this.recalc();
+                    });
+                    break;
+            }
+        }
+
 
         //
         // Interface bindings
@@ -209,6 +247,8 @@ $(function(){
         this.setValue('tagnames',   !!(_this.cssgSetTags.attr('checked')=='checked'));
 
         this.setValue('auto',       !!(_this.cssgSetAuto.attr('checked')=='checked'));
+
+        // check autorecalc initital setting
         if(this.cssgSetAuto.attr('checked')=='checked') {
             this.cssgInit.hide();
             this.init();
@@ -254,9 +294,21 @@ $(function(){
 
         //
         // Auto recalc
+        var autoRecalc = {
+            to: 300,
+            id : null
+        };
+
         this.cssgInput.on({
-            'keyup' : function(){ //todo: event on paste
-                _this.recalc();
+            'keyup paste cut' : function(){
+                // wrapper for throttling event
+                if(!autoRecalc.id && _this.settings.auto){
+                    autoRecalc.id = setTimeout(function(){
+                        _this.recalc();
+                        clearTimeout(autoRecalc.id);
+                        autoRecalc.id = null;
+                    }, autoRecalc.to);
+                }
             }
         });
 
@@ -335,7 +387,7 @@ $(function(){
     //
     CSSG.prototype.recalc = function(){
         var _this = this;
-        if(this.settings.auto) this.init();
+        this.init();
     };
 
     //
