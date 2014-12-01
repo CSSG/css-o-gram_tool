@@ -32,10 +32,10 @@ version 2
 ['fragment',
     ['tag'
         ['name', 'div'],
-        ['attributes, [
+        ['attributes,
             ['class', 'block'],
             ['data-bar', 'foo']
-        ]],
+        ],
         ['text'
             ['textContent', 'block text']
         ]

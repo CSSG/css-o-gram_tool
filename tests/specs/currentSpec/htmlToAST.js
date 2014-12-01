@@ -1,6 +1,6 @@
 describe('HTML to AST', function () {
 
-    describe('correct is define', function () {
+    describe('correct define', function () {
         it('module defined', function () {
             expect(DL.htmlToAST).toBeDefined();
         });
@@ -42,12 +42,12 @@ describe('HTML to AST', function () {
                 });
 
 
-                it('Node is define', function () {
-                    expect(htmlToASTNodes.Node).toBeDefined();
+                it('Tag is define', function () {
+                    expect(htmlToASTNodes.Tag).toBeDefined();
                 });
 
-                it('Node is constructor', function () {
-                    expect(htmlToASTNodes.Node).toEqual(jasmine.any(Function));
+                it('Tag is constructor', function () {
+                    expect(htmlToASTNodes.Tag).toEqual(jasmine.any(Function));
                 });
 
 
@@ -242,9 +242,17 @@ describe('HTML to AST', function () {
     });
 
 
-    var defaultSpan = '<span></span>';
+
+
+    function createDefaultSpan(contentItem) {
+        var createTagArguments = ['span', null];
+        DL.cycle(arguments, function (contentItem) {
+            createTagArguments.push(contentItem);
+        });
+        return TESTS_UTILS.createTag.apply(TESTS_UTILS, createTagArguments);
+    }
     function defaultSpanTests(span) {
-        it ('div is parsed', function () {
+        it('div is parsed', function () {
             expect(span).toBeDefined();
         });
 
@@ -261,7 +269,13 @@ describe('HTML to AST', function () {
         });
     }
 
-    var defaultDiv = '<div class="block" data-foo="bar"></div>';
+    function createDefaultDiv(contentItem) {
+        var createTagArguments = ['div', {'class': 'block', 'data-foo': 'bar'}];
+        DL.cycle(arguments, function (contentItem) {
+            createTagArguments.push(contentItem);
+        });
+        return TESTS_UTILS.createTag.apply(TESTS_UTILS, createTagArguments);
+    }
     function defaultDivTests (div) {
         it ('div is parsed', function () {
             expect(div).toBeDefined();
@@ -296,7 +310,7 @@ describe('HTML to AST', function () {
 
         describe('one div', function () {
 
-            var ast = htmlToAST.parse(defaultDiv),
+            var ast = htmlToAST.parse(createDefaultDiv()),
                 div = ast.childNodes[0];
 
             defaultDivTests(div);
@@ -306,7 +320,7 @@ describe('HTML to AST', function () {
 
         describe('2 linear tags', function () {
 
-            var ast = htmlToAST.parse(defaultSpan + defaultDiv),
+            var ast = htmlToAST.parse(createDefaultSpan() + createDefaultDiv()),
                 span = ast.childNodes[0],
                 div = ast.childNodes[1];
 

@@ -1,6 +1,5 @@
 describe('Tests tests work', function () {
 
-
     it('tests start', function () {
         expect(true).toBe(true);
     });

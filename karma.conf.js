@@ -15,7 +15,17 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-        'tests/testWord.js'
+        'src/js/defaultLib/DL.js',
+        'src/js/defaultLib/utils/**/*.js',
+        'src/js/defaultLib/modules/**/*.js',
+        'tests/testsUtils/TESTS_UTILS.js',
+        'tests/testsUtils/**/*.js',
+
+        'tests/specs/testsWork.js',
+        'tests/specs/currentSpec/DL.js',
+        'tests/specs/testsUtils/testsUtilsMain.js',
+        'tests/specs/testsUtils/createTag.js',
+        'tests/specs/currentSpec/htmlToAST.js'
     ],
 
 
