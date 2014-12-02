@@ -1,9 +1,10 @@
 (function (global) {
-    var htmlToAST = {
-        nodes: {},
-        helpers: {},
-        parse: parse
-    };
+    var defaultLib = global.DL,
+        htmlToAST = {
+            nodes: {},
+            helpers: {},
+            parse: null
+        };
 
 
 
@@ -18,7 +19,11 @@
     //
     (function () {
 
-        function Fragment () {}
+        function Fragment () {
+            var fragment = this;
+            fragment.type = 'fragment';
+            fragment.childNodes = [];
+        }
 
         htmlToAST.nodes.Fragment = Fragment;
     } ());
@@ -28,7 +33,13 @@
     //
     (function () {
 
-        function Tag () {}
+        function Tag (name, attributes) {
+            var tag = this;
+            tag.type = 'tag';
+            tag.childNodes = [];
+            tag.name = name;
+            tag.attributes = attributes || {};
+        }
 
         htmlToAST.nodes.Tag = Tag;
     } ());
@@ -38,7 +49,12 @@
     //
     (function () {
 
-        function Text () {}
+        function Text (textContent) {
+            var text = this;
+            text.type = 'text';
+            text.text = textContent;
+
+        }
 
         htmlToAST.nodes.Text = Text;
     } ());
@@ -48,7 +64,11 @@
     //
     (function () {
 
-        function Comment () {}
+        function Comment (commentContent) {
+            var comment = this;
+            comment.type = 'comment';
+            comment.text = commentContent;
+        }
 
         htmlToAST.nodes.Comment = Comment;
     } ());
@@ -76,7 +96,7 @@
          * @param {ASTNode} node
          */
         htmlToAST.helpers.appendChild = function (nodeTo, node) {
-
+            nodeTo.childNodes.push(node);
         };
     } ());
 
@@ -93,5 +113,144 @@
         return {};
     }
 
-    global.DL.htmlToAST = htmlToAST;
+    (function () {
+        var nodes = htmlToAST.nodes,
+            helpers = htmlToAST.nodes,
+            statesTable = {
+                '<': 'tag or comment',
+                '<*': 'tag',
+                '</': 'closed tag',
+                '<!': 'comment',
+                '/>': 'tag closed',
+                't': 'text'
+            },
+            space = ' ';
+
+        function getStateByChar(char, previousCharsCache, currentState) {
+            var stateKey;
+            if (previousCharsCache) {
+                switch (previousCharsCache) {
+                    case '<':
+                        switch (char) {
+                            case '!':
+                                stateKey = '<!';
+                                break;
+                            case '/':
+                                stateKey = '</';
+                                break;
+                            default:
+                                stateKey = '<*';
+                        }
+                        break;
+                    case '/':
+                        switch (char) {
+                            case '>':
+                                stateKey = '/>';
+                                break;
+                        }
+                }
+            } else {
+                switch (char) {
+                    case '<':
+                        stateKey = '<';
+                        break;
+                    case '/':
+                        stateKey = '/';
+                        break;
+                    default:
+                        stateKey = 't';
+                }
+            }
+            return statesTable[stateKey];
+        }
+
+        /**
+         *
+         * @param {String} html
+         * @return {Object} ast
+         */
+        function parse (html) {
+            var root = new nodes.Fragment(),
+                stack = [root],
+                currentState = '',
+                previousCharsCache = '',
+
+                currentTagName = '',
+                isTagNameDetect = false,
+                currentAttributes = null,
+                currentAttributeName = '',
+                currentAttributeValue = '',
+
+                currentTextValue = '',
+                currentCommentValue = '';
+
+            function resetCurrentState (isForce) {
+                currentState = '';
+                if (isForce) {
+                    previousCharsCache = '';
+                }
+            }
+
+            function createTag () {
+                helpers.appendChild(stack[stack.length - 1], new nodes.Tag(currentTagName, currentAttributes));
+            }
+
+            function clearTagInfo () {
+                currentTagName = '';
+                isTagNameDetect = false;
+                currentAttributes = null;
+                currentAttributeName = '';
+                currentAttributeValue = '';
+            }
+
+            defaultLib.cycle(html, function (char) {
+                //empty string is empty state
+                if (!currentState) {
+                    currentState = getStateByChar(char, previousCharsCache);
+                }
+
+                switch (currentState) {
+                    case 'tag or comment':
+                        previousCharsCache = char;
+                        resetCurrentState();
+                        break;
+                    case 'tag':
+                        if (isTagNameDetect) {
+                            switch (char) {
+                                case space:
+                                    isTagNameDetect = true;
+                                    break;
+                                case '>':
+                                    createTag();
+                                    break;
+                                default:
+                                    currentTagName += char;
+                                    break;
+                            }
+                        } else {
+                            
+                        }
+
+                        break;
+                    case 'closed tag':
+                        break;
+                    case 'comment':
+                        break;
+                    case 'text':
+                        break;
+                    default:
+                        throw new Error('htmlToAST.parse(): unknown state');
+                }
+
+
+
+            });
+
+            return root;
+        }
+
+        htmlToAST.parse = parse;
+    } ());
+
+    defaultLib.htmlToAST = htmlToAST;
 } (this));

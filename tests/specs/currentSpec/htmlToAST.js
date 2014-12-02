@@ -308,7 +308,16 @@ describe('HTML to AST', function () {
             expect(ast instanceof htmlToASTNodes.Fragment).toBe(true);
         });
 
-        describe('one div', function () {
+        describe('one span', function () {
+
+            var ast = htmlToAST.parse(createDefaultSpan()),
+                span = ast.childNodes[0];
+
+            defaultDivTests(span);
+
+        });
+
+        describe('one div with attributes', function () {
 
             var ast = htmlToAST.parse(createDefaultDiv()),
                 div = ast.childNodes[0];
@@ -332,9 +341,22 @@ describe('HTML to AST', function () {
                 defaultDivTests(div);
             });
 
-
-
         });
+
+        describe('2 nested divs', function () {
+            var ast = htmlToAST.parse(createDefaultDiv(createDefaultDiv())),
+                div1 = ast.childNodes[0],
+                div2 = ast.childNodes[0].childNodes[0];
+
+            describe('parent div', function () {
+                defaultDivTests(div1);
+            });
+
+            describe('children div', function () {
+                defaultDivTests(div2);
+            });
+
+        })
 
     });
 

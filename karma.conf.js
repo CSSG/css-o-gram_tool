@@ -21,10 +21,12 @@ module.exports = function(config) {
         'tests/testsUtils/TESTS_UTILS.js',
         'tests/testsUtils/**/*.js',
 
+
         'tests/specs/testsWork.js',
         'tests/specs/currentSpec/DL.js',
         'tests/specs/testsUtils/testsUtilsMain.js',
         'tests/specs/testsUtils/createTag.js',
+        'tests/specs/helpersTests/DOMResearch.js',
         'tests/specs/currentSpec/htmlToAST.js'
     ],
 
