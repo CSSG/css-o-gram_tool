@@ -23,6 +23,8 @@ module.exports = function(config) {
 
 
         'tests/specs/testsWork.js',
+        'tests/utilsTests/gulpTasksTests.js',
+
         'tests/specs/currentSpec/DL.js',
         'tests/specs/testsUtils/testsUtilsMain.js',
         'tests/specs/testsUtils/createTag.js',
