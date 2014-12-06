@@ -1,10 +1,10 @@
-describe('Tests Utils: createTag', function () {
+describe('DTesting.utils: createTag', function () {
 
     it('correct define', function () {
-        expect(TESTS_UTILS.createTag).toBeDefined();
+        expect(DTesting.utils.createTag).toBeDefined();
     });
 
-    var createTag = TESTS_UTILS.createTag;
+    var createTag = DTesting.utils.createTag;
 
 
     it('create span', function () {

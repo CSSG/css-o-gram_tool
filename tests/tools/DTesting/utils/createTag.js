@@ -8,7 +8,7 @@
      * @param {String} contentItem html text
      * @return {String} html text
      */
-    global.TESTS_UTILS.createTag = function (tagName, attributes, contentItem) {
+    global.DTesting.utils.createTag = function (tagName, attributes, contentItem) {
         var attributesString = '',
             content = '',
             result;

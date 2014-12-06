@@ -15,20 +15,33 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+        //define DTesting for exports
+        'tests/tools/DTesting/DTesting.js',
+
+        //project code
         'src/js/defaultLib/DL.js',
         'src/js/defaultLib/utils/**/*.js',
         'src/js/defaultLib/modules/**/*.js',
-        'tests/testsUtils/TESTS_UTILS.js',
-        'tests/testsUtils/**/*.js',
 
+        //DTesting modules
+        //DTesting utils
+        'tests/tools/DTesting/utils/**/*.js',
 
+        //Test works tests (it's some funny, but we need check testing framework)
         'tests/specs/testsWork.js',
-        'tests/utilsTests/gulpTasksTests.js',
 
+        //project build utils tests
+        'tests/specs/projectEnvironmentSetting/gulpTasksData.js',
+
+        //DTesting tests
+        'tests/specs/DTesting/DTesting.js',
+        'tests/specs/DTesting/utils/createTag.js',
+
+        //tests for researches (researches need for check suppositions arising in process)
+        'tests/specs/researches/DOMResearch.js',
+
+        //project code tests
         'tests/specs/currentSpec/DL.js',
-        'tests/specs/testsUtils/testsUtilsMain.js',
-        'tests/specs/testsUtils/createTag.js',
-        'tests/specs/helpersTests/DOMResearch.js',
         'tests/specs/currentSpec/htmlToAST.js'
     ],
 
