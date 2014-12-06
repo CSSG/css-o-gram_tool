@@ -41,8 +41,8 @@ module.exports = function(config) {
         'tests/specs/researches/DOMResearch.js',
 
         //project code tests
-        'tests/specs/currentSpec/DL.js',
-        'tests/specs/currentSpec/htmlToAST.js'
+        'tests/specs/project/DL.js',
+        'tests/specs/project/htmlToAST.js'
     ],
 
 

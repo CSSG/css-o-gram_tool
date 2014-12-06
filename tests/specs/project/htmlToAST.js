@@ -249,7 +249,7 @@ describe('HTML to AST', function () {
         DL.cycle(arguments, function (contentItem) {
             createTagArguments.push(contentItem);
         });
-        return TESTS_UTILS.createTag.apply(TESTS_UTILS, createTagArguments);
+        return DTesting.utils.createTag.apply(DTesting.utils, createTagArguments);
     }
     function defaultSpanTests(span) {
         it('div is parsed', function () {
@@ -274,7 +274,7 @@ describe('HTML to AST', function () {
         DL.cycle(arguments, function (contentItem) {
             createTagArguments.push(contentItem);
         });
-        return TESTS_UTILS.createTag.apply(TESTS_UTILS, createTagArguments);
+        return DTesting.utils.createTag.apply(DTesting.utils, createTagArguments);
     }
     function defaultDivTests (div) {
         it ('div is parsed', function () {
