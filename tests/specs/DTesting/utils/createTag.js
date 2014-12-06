@@ -1,4 +1,4 @@
-describe('DTesting.utils: createTag', function () {
+describe('DTesting.utils.createTag()', function () {
 
     it('correct define', function () {
         expect(DTesting.utils.createTag).toBeDefined();

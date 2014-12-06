@@ -1,4 +1,4 @@
-describe('DTesting main', function () {
+describe('DTesting: main', function () {
     it('DTesting is define', function () {
         expect(window.DTesting).toBeDefined();
     });

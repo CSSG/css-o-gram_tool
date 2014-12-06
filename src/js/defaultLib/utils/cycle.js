@@ -1,4 +1,5 @@
 (function (global) {
+    var DL = global.DL;
     /**
      *
      * @param {Array|Object|String} cycleable
@@ -9,7 +10,7 @@
      * @param {Number} [start]
      * @returns {*}
      */
-    global.DL.cycle = function(cycleable, fn, fnData, ctx, step, start){
+    DL.cycle = function(cycleable, fn, fnData, ctx, step, start){
         var i,
             iMax,
             propertyName,
@@ -18,22 +19,21 @@
         if (cycleable){
             ctx = ctx || null;
             step = step || 1;
-            if (typeof cycleable === 'string') {
+            if (DL.isString(cycleable)) {
                 for (i = start || 0, iMax = cycleable.length; i < iMax; i += step) {
                     fnResult = fn.call(ctx, cycleable.charAt(i), cycleable, fnData);
                     if (fnResult !== undefined) {
                         return fnResult;
                     }
                 }
-            } else if (Array.isArray(cycleable)
-                || cycleable.hasOwnProperty('length')) {
+            } else if (DL.isCollection(cycleable)) {
                 for (i = start || 0, iMax = cycleable.length; i < iMax; i += step) {
                     fnResult = fn.call(ctx, cycleable[i], i, cycleable, fnData);
                     if (fnResult !== undefined) {
                         return fnResult;
                     }
                 }
-            } else {
+            } else if (DL.isObject(cycleable)){
                 for (propertyName in cycleable){
                     if (cycleable.hasOwnProperty(propertyName)) {
                         fnResult = fn.call(ctx, cycleable[propertyName], propertyName, cycleable, fnData);

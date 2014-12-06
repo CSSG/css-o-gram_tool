@@ -1,4 +1,4 @@
-describe('Tests tests work', function () {
+describe('Basic: tests work', function () {
 
     it('tests start', function () {
         expect(true).toBe(true);

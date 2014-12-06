@@ -15,34 +15,46 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+        //Test works tests (it's some funny, but we need check testing framework)
+        'tests/specs/testsWork.js',
+
+        //tests for researches (researches need for check suppositions arising in process)
+        'tests/specs/researches/DOM.js',
+        'tests/specs/researches/jsTypeDetection.js',
+
         //define DTesting for exports
         'tests/tools/DTesting/DTesting.js',
 
-        //project code
+        //project code: define and utils
         'src/js/defaultLib/DL.js',
         'src/js/defaultLib/utils/**/*.js',
-        'src/js/defaultLib/modules/**/*.js',
 
-        //DTesting modules
         //DTesting utils
         'tests/tools/DTesting/utils/**/*.js',
 
-        //Test works tests (it's some funny, but we need check testing framework)
-        'tests/specs/testsWork.js',
+        //project code: modules
+        'src/js/defaultLib/modules/**/*.js',
 
         //project build utils tests
         'tests/specs/projectEnvironmentSetting/gulpTasksData.js',
 
         //DTesting tests
         'tests/specs/DTesting/DTesting.js',
+        'tests/specs/DTesting/infrastructure/exportsForTests.js',
         'tests/specs/DTesting/utils/createTag.js',
 
-        //tests for researches (researches need for check suppositions arising in process)
-        'tests/specs/researches/DOMResearch.js',
+        //Default Lib define tests
+        'tests/specs/DL/DL.js',
+
+        //Default Lib utils tests
+        'tests/specs/DL/utils/typesDetectors.js',
+        'tests/specs/DL/utils/cycle.js',
+        'tests/specs/DL/utils/getObjectSafely.js',
+
+        //Default Lib utils modules
+        'tests/specs/DL/modules/htmlToAST.js'
 
         //project code tests
-        'tests/specs/project/DL.js',
-        'tests/specs/project/htmlToAST.js'
     ],
 
 

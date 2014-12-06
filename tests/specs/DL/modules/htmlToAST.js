@@ -1,4 +1,4 @@
-describe('HTML to AST', function () {
+describe('DL.htmlToAST()', function () {
 
     describe('correct define', function () {
         it('module defined', function () {
