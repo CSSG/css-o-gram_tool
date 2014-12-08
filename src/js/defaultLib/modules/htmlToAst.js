@@ -117,7 +117,7 @@
         var nodes = htmlToAST.nodes,
             helpers = htmlToAST.nodes,
             statesTable = {
-                '<': 'tag or comment',
+                '<': 'in decrypting',
                 '<*': 'tag',
                 '</': 'closed tag',
                 '<!': 'comment',
@@ -126,7 +126,7 @@
             },
             space = ' ';
 
-        function getStateByChar(char, previousCharsCache, currentState) {
+        function detectState(char, previousCharsCache, currentState) {
             var stateKey;
             if (previousCharsCache) {
                 switch (previousCharsCache) {
@@ -163,6 +163,13 @@
             }
             return statesTable[stateKey];
         }
+
+        /*@DTesting.exports*/
+
+            var testingExports = DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST');
+            testingExports.detectState = detectState;
+
+        /*@/DTesting.exports*/
 
         /**
          *
@@ -206,11 +213,11 @@
             defaultLib.cycle(html, function (char) {
                 //empty string is empty state
                 if (!currentState) {
-                    currentState = getStateByChar(char, previousCharsCache);
+                    currentState = detectState(char, previousCharsCache);
                 }
 
                 switch (currentState) {
-                    case 'tag or comment':
+                    case 'in decrypting':
                         previousCharsCache = char;
                         resetCurrentState();
                         break;

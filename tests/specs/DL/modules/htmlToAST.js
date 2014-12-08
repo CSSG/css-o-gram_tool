@@ -301,7 +301,28 @@ describe('DL.htmlToAST()', function () {
 
     }
 
+
+
     describe('parse', function () {
+
+        describe('private export', function () {
+
+            describe('detect state', function () {
+                var detectState = DTesting.exports.DL.htmlToAST.detectState;
+
+                it('tag', function () {
+                    var state;
+
+                    state = detectState('<');
+                    expect(state).toBe('in decrypting');
+                    state = detectState('a', '<');
+                    expect(state).toBe('tag');
+
+                });
+
+            });
+
+        });
 
         it('any AST root is Fragment', function () {
             var ast = htmlToAST.parse('');
