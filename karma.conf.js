@@ -21,6 +21,8 @@ module.exports = function(config) {
         //tests for researches (researches need for check suppositions arising in process)
         'tests/specs/researches/DOM.js',
         'tests/specs/researches/jsTypeDetection.js',
+        'tests/specs/researches/detectCharSymbol.js',
+        'tests/specs/researches/whiteSpace.js',
 
         //define DTesting for exports
         'tests/tools/DTesting/DTesting.js',

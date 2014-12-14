@@ -307,21 +307,105 @@ describe('DL.htmlToAST()', function () {
 
         describe('private export', function () {
 
-            describe('detect state', function () {
-                var detectState = DTesting.exports.DL.htmlToAST.detectState;
+            describe('letterTestRegExp', function () {
+                var letterTestRegExp = DTesting.exports.DL.htmlToAST.letterTestRegExp;
 
-                it('tag', function () {
-                    var state;
-
-                    state = detectState('<');
-                    expect(state).toBe('in decrypting');
-                    state = detectState('a', '<');
-                    expect(state).toBe('tag');
-
+                it('letter is letter', function () {
+                    expect(letterTestRegExp.test('A')).toBe(true);
+                    expect(letterTestRegExp.test('Z')).toBe(true);
+                    expect(letterTestRegExp.test('a')).toBe(true);
+                    expect(letterTestRegExp.test('z')).toBe(true);
+                    expect(letterTestRegExp.test('F')).toBe(true);
+                    expect(letterTestRegExp.test('f')).toBe(true);
+                });
+                it('/ is not letter', function () {
+                    expect(letterTestRegExp.test('/')).toBe(false);
+                });
+                it('! is not letter', function () {
+                    expect(letterTestRegExp.test('!')).toBe(false);
+                });
+                it('- is not letter', function () {
+                    expect(letterTestRegExp.test('-')).toBe(false);
+                });
+                it('_ is not letter', function () {
+                    expect(letterTestRegExp.test('_')).toBe(false);
+                });
+                it('\' \' is not letter', function () {
+                    expect(letterTestRegExp.test(' ')).toBe(false);
+                });
+                it('number is not letter', function () {
+                    expect(letterTestRegExp.test('0')).toBe(false);
+                    expect(letterTestRegExp.test('1')).toBe(false);
+                    expect(letterTestRegExp.test('2')).toBe(false);
+                    expect(letterTestRegExp.test('3')).toBe(false);
+                    expect(letterTestRegExp.test('4')).toBe(false);
+                    expect(letterTestRegExp.test('4')).toBe(false);
+                    expect(letterTestRegExp.test('6')).toBe(false);
+                    expect(letterTestRegExp.test('7')).toBe(false);
+                    expect(letterTestRegExp.test('8')).toBe(false);
+                    expect(letterTestRegExp.test('9')).toBe(false);
                 });
 
             });
 
+            describe('tagNameCorrectSymbolRegExp', function () {
+                var tagNameCorrectSymbolRegExp = DTesting.exports.DL.htmlToAST.tagNameCorrectSymbolRegExp;
+
+                it('letter is correct', function () {
+                    expect(tagNameCorrectSymbolRegExp.test('A')).toBe(true);
+                    expect(tagNameCorrectSymbolRegExp.test('Z')).toBe(true);
+                    expect(tagNameCorrectSymbolRegExp.test('a')).toBe(true);
+                    expect(tagNameCorrectSymbolRegExp.test('z')).toBe(true);
+                    expect(tagNameCorrectSymbolRegExp.test('F')).toBe(true);
+                    expect(tagNameCorrectSymbolRegExp.test('f')).toBe(true);
+                });
+                it('/ is not correct', function () {
+                    expect(tagNameCorrectSymbolRegExp.test('/')).toBe(false);
+                });
+                it('! is not correct', function () {
+                    expect(tagNameCorrectSymbolRegExp.test('!')).toBe(false);
+                });
+                it('\' \' is not correct', function () {
+                    expect(tagNameCorrectSymbolRegExp.test(' ')).toBe(false);
+                });
+                it('- is correct', function () {
+                    expect(tagNameCorrectSymbolRegExp.test('-')).toBe(true);
+                });
+                it('_ is correct', function () {
+                    expect(tagNameCorrectSymbolRegExp.test('_')).toBe(true);
+                });
+                it('number is correct', function () {
+                    expect(tagNameCorrectSymbolRegExp.test('0')).toBe(true);
+                    expect(tagNameCorrectSymbolRegExp.test('1')).toBe(true);
+                    expect(tagNameCorrectSymbolRegExp.test('2')).toBe(true);
+                    expect(tagNameCorrectSymbolRegExp.test('3')).toBe(true);
+                    expect(tagNameCorrectSymbolRegExp.test('4')).toBe(true);
+                    expect(tagNameCorrectSymbolRegExp.test('4')).toBe(true);
+                    expect(tagNameCorrectSymbolRegExp.test('6')).toBe(true);
+                    expect(tagNameCorrectSymbolRegExp.test('7')).toBe(true);
+                    expect(tagNameCorrectSymbolRegExp.test('8')).toBe(true);
+                    expect(tagNameCorrectSymbolRegExp.test('9')).toBe(true);
+                });
+            });
+        //
+        //    describe('detect state', function () {
+        //        var detectState = DTesting.exports.DL.htmlToAST.detectState;
+        //
+        //        it('tag', function () {
+        //            var state;
+        //
+        //            state = detectState('<');
+        //
+        //            expect(state).toBe('in decrypting');
+        //
+        //            state = detectState('a', '<');
+        //
+        //            expect(state).toBe('tag');
+        //
+        //        });
+        //
+        //    });
+        //
         });
 
         it('any AST root is Fragment', function () {

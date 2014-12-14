@@ -124,50 +124,100 @@
                 '/>': 'tag closed',
                 't': 'text'
             },
-            space = ' ';
+            space = ' ',
 
-        function detectState(char, previousCharsCache, currentState) {
-            var stateKey;
-            if (previousCharsCache) {
-                switch (previousCharsCache) {
-                    case '<':
-                        switch (char) {
-                            case '!':
-                                stateKey = '<!';
-                                break;
-                            case '/':
-                                stateKey = '</';
-                                break;
-                            default:
-                                stateKey = '<*';
-                        }
-                        break;
-                    case '/':
-                        switch (char) {
-                            case '>':
-                                stateKey = '/>';
-                                break;
-                        }
-                }
+            buffer = '';
+
+        var stateId = 0,
+
+            TEXT = stateId++,
+
+            TAG_START = stateId++,
+            TAG_NAME = stateId++,
+            TAG_BODY = stateId++,
+
+            DECLARATION = stateId++;
+
+        var letterTestRegExp = /[A-Za-z]/,
+            tagNameCorrectSymbolRegExp = /\w|-/,
+            whiteSpaceRegExp = /\s/;
+
+        function isWhiteSpace (char) {
+            return whiteSpaceRegExp.test(char);
+        }
+
+        function ContextOfParse () {
+            var contextOfParse = this,
+                root = new nodes.Fragment();
+
+            contextOfParse.state = TEXT;
+            contextOfParse.buffer = '';
+            contextOfParse.treeStack = [root];
+            contextOfParse.charIndex = 0;
+            contextOfParse.result = root;
+
+            contextOfParse.tagname = '';
+
+            contextOfParse.attributeName = '';
+            contextOfParse.attributeValue = '';
+
+            contextOfParse.attributes = null;
+        }
+
+
+        function processingTextState (contextOfParse, char) {
+            switch (char) {
+                case '<':
+                    contextOfParse.state = TAG_START;
+                    contextOfParse.buffer += char;
+                    break;
+                default:
+                    contextOfParse.buffer += char;
+            }
+        }
+
+        function processingTagStart (contextOfParse, char) {
+            var isChar = letterTestRegExp.test(char);
+            if (isChar) {
+                contextOfParse.state = TAG_NAME;
+                contextOfParse.tagname = char;
             } else {
                 switch (char) {
-                    case '<':
-                        stateKey = '<';
+                    case '!':
+                        contextOfParse.state = DECLARATION;
                         break;
-                    case '/':
-                        stateKey = '/';
-                        break;
+
                     default:
-                        stateKey = 't';
+                        contextOfParse.state = TEXT;
                 }
             }
-            return statesTable[stateKey];
+            contextOfParse.buffer += char;
         }
+
+        function processingTagName (contextOfParse, char) {
+            var isCorrect = tagNameCorrectSymbolRegExp.test(char);
+            if (isCorrect) {
+                contextOfParse.tagname += char;
+            } else if (isWhiteSpace(char)) {
+                contextOfParse.buffer += contextOfParse.tagname + char;
+                contextOfParse.state = TAG_BODY;
+            } else {
+                contextOfParse.state = TEXT;
+            }
+        }
+
+        function processingTagBody (contextOfParse, char) {
+
+        }
+
 
         /*@DTesting.exports*/
 
             var testingExports = DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST');
-            testingExports.detectState = detectState;
+            //testingExports.detectState = detectState;
+            testingExports.ContextOfParse = ContextOfParse;
+            testingExports.letterTestRegExp = letterTestRegExp;
+            testingExports.tagNameCorrectSymbolRegExp = tagNameCorrectSymbolRegExp;
 
         /*@/DTesting.exports*/
 
@@ -177,83 +227,28 @@
          * @return {Object} ast
          */
         function parse (html) {
-            var root = new nodes.Fragment(),
-                stack = [root],
-                currentState = '',
-                previousCharsCache = '',
-
-                currentTagName = '',
-                isTagNameDetect = false,
-                currentAttributes = null,
-                currentAttributeName = '',
-                currentAttributeValue = '',
-
-                currentTextValue = '',
-                currentCommentValue = '';
-
-            function resetCurrentState (isForce) {
-                currentState = '';
-                if (isForce) {
-                    previousCharsCache = '';
-                }
-            }
-
-            function createTag () {
-                helpers.appendChild(stack[stack.length - 1], new nodes.Tag(currentTagName, currentAttributes));
-            }
-
-            function clearTagInfo () {
-                currentTagName = '';
-                isTagNameDetect = false;
-                currentAttributes = null;
-                currentAttributeName = '';
-                currentAttributeValue = '';
-            }
+            var contextOfParse = new ContextOfParse();
 
             defaultLib.cycle(html, function (char) {
-                //empty string is empty state
-                if (!currentState) {
-                    currentState = detectState(char, previousCharsCache);
+                switch (contextOfParse.state) {
+                    case TEXT:
+                        processingTextState(contextOfParse, char);
+                        break;
+                    case TAG_START:
+                        processingTagStart(contextOfParse, char);
+                        break;
+                    case TAG_NAME:
+                        processingTagName(contextOfParse, char);
+                        break;
+                    case TAG_BODY:
+                        processingTagBody(contextOfParse, char);
+                        break;
+
+
                 }
-
-                switch (currentState) {
-                    case 'in decrypting':
-                        previousCharsCache = char;
-                        resetCurrentState();
-                        break;
-                    case 'tag':
-                        if (isTagNameDetect) {
-                            switch (char) {
-                                case space:
-                                    isTagNameDetect = true;
-                                    break;
-                                case '>':
-                                    createTag();
-                                    break;
-                                default:
-                                    currentTagName += char;
-                                    break;
-                            }
-                        } else {
-                            
-                        }
-
-                        break;
-                    case 'closed tag':
-                        break;
-                    case 'comment':
-                        break;
-                    case 'text':
-                        break;
-                    default:
-                        throw new Error('htmlToAST.parse(): unknown state');
-                }
-
-
-
             });
 
-            return root;
+            return contextOfParse.result;
         }
 
         htmlToAST.parse = parse;
