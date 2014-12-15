@@ -387,6 +387,67 @@ describe('DL.htmlToAST()', function () {
                     expect(tagNameCorrectSymbolRegExp.test('9')).toBe(true);
                 });
             });
+
+            describe('syntax analyzers', function () {
+                var states = DTesting.exports.DL.htmlToAST.states,
+                    processings = DTesting.exports.DL.htmlToAST.processings,
+                    ContextOfParse = DTesting.exports.DL.htmlToAST.ContextOfParse;
+
+                it('states did exported', function () {
+                    expect(states).toBeDefined();
+                });
+
+                it('processings did exported', function () {
+                    expect(processings).toBeDefined();
+                });
+
+                it('ContextOfParse did exported', function () {
+                    expect(ContextOfParse).toBeDefined();
+                });
+
+                describe('processings', function () {
+
+                    describe('processingText', function () {
+                        var processingText = processings.processingText;
+
+                        it('was exported', function () {
+                            expect(processingText).toBeDefined();
+                        });
+
+                        it('change state for \'<\'', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, '<');
+                            expect(contextOfParse.state).toBe(states.TAG_START);
+                        });
+
+                        describe('not change state for text', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, 'a');
+                            it('save TEXT state after processing \'a\'', function () {
+                                expect(contextOfParse.state).toBe(states.TEXT);
+                            });
+                            processingText(contextOfParse, '/');
+                            it('save TEXT state after processing \'/\'', function () {
+                                expect(contextOfParse.state).toBe(states.TEXT);
+                            });
+                            processingText(contextOfParse, 'ф');
+                            it('save TEXT state after processing \'ф\'', function () {
+                                expect(contextOfParse.state).toBe(states.TEXT);
+                            });
+                            processingText(contextOfParse, '1');
+                            it('save TEXT state after processing \'1\'', function () {
+                                expect(contextOfParse.state).toBe(states.TEXT);
+                            });
+
+                        });
+
+
+                    });
+
+                });
+
+
+            });
         //
         //    describe('detect state', function () {
         //        var detectState = DTesting.exports.DL.htmlToAST.detectState;

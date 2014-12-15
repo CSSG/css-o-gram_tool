@@ -135,12 +135,35 @@
             TAG_START = stateId++,
             TAG_NAME = stateId++,
             TAG_BODY = stateId++,
+            TAG_CLOSE = stateId++,
 
             DECLARATION = stateId++;
+
+        /*@DTesting.exports*/
+
+            var testingExportsForStates = DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST');
+            testingExportsForStates.states = {
+                TEXT: TEXT,
+
+                TAG_START: TAG_START,
+                TAG_NAME: TAG_NAME,
+                TAG_BODY: TAG_BODY,
+                TAG_CLOSE: TAG_CLOSE,
+
+                DECLARATION: DECLARATION
+            };
+
+        /*@/DTesting.exports*/
 
         var letterTestRegExp = /[A-Za-z]/,
             tagNameCorrectSymbolRegExp = /\w|-/,
             whiteSpaceRegExp = /\s/;
+
+        /*@DTesting.exports*/
+        var testingExports = DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST');
+        testingExports.letterTestRegExp = letterTestRegExp;
+        testingExports.tagNameCorrectSymbolRegExp = tagNameCorrectSymbolRegExp;
+        /*@/DTesting.exports*/
 
         function isWhiteSpace (char) {
             return whiteSpaceRegExp.test(char);
@@ -164,8 +187,25 @@
             contextOfParse.attributes = null;
         }
 
+        ContextOfParse.destructor = function () {
+            var contextOfParse = this;
+            contextOfParse.state = null;
+            contextOfParse.buffer = null;
+            contextOfParse.treeStack = null;
+            contextOfParse.charIndex = null;
+            contextOfParse.result = null;
+            contextOfParse.tagname = null;
+            contextOfParse.attributeName = null;
+            contextOfParse.attributeValue = null;
+            contextOfParse.attributes = null;
+        };
 
-        function processingTextState (contextOfParse, char) {
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST').ContextOfParse = ContextOfParse;
+        /*@/DTesting.exports*/
+
+
+        function processingText (contextOfParse, char) {
             switch (char) {
                 case '<':
                     contextOfParse.state = TAG_START;
@@ -175,6 +215,10 @@
                     contextOfParse.buffer += char;
             }
         }
+
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingText = processingText;
+        /*@/DTesting.exports*/
 
         function processingTagStart (contextOfParse, char) {
             var isChar = letterTestRegExp.test(char);
@@ -194,6 +238,10 @@
             contextOfParse.buffer += char;
         }
 
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagStart = processingTagStart;
+        /*@/DTesting.exports*/
+
         function processingTagName (contextOfParse, char) {
             var isCorrect = tagNameCorrectSymbolRegExp.test(char);
             if (isCorrect) {
@@ -201,25 +249,25 @@
             } else if (isWhiteSpace(char)) {
                 contextOfParse.buffer += contextOfParse.tagname + char;
                 contextOfParse.state = TAG_BODY;
+            } else if (char === '/'){
+                contextOfParse.state = TEXT;
             } else {
                 contextOfParse.state = TEXT;
             }
         }
 
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagName = processingTagName;
+        /*@/DTesting.exports*/
+
         function processingTagBody (contextOfParse, char) {
 
         }
 
-
         /*@DTesting.exports*/
-
-            var testingExports = DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST');
-            //testingExports.detectState = detectState;
-            testingExports.ContextOfParse = ContextOfParse;
-            testingExports.letterTestRegExp = letterTestRegExp;
-            testingExports.tagNameCorrectSymbolRegExp = tagNameCorrectSymbolRegExp;
-
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagBody = processingTagBody;
         /*@/DTesting.exports*/
+
 
         /**
          *
@@ -232,7 +280,7 @@
             defaultLib.cycle(html, function (char) {
                 switch (contextOfParse.state) {
                     case TEXT:
-                        processingTextState(contextOfParse, char);
+                        processingText(contextOfParse, char);
                         break;
                     case TAG_START:
                         processingTagStart(contextOfParse, char);
