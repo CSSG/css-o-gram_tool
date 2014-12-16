@@ -137,22 +137,20 @@
             TAG_BODY = stateId++,
             TAG_CLOSE = stateId++,
 
-            DECLARATION = stateId++;
+            DECLARATION_START = stateId++;
 
         /*@DTesting.exports*/
+        var testingExportsForStates = DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST');
+        testingExportsForStates.states = {
+            TEXT: TEXT,
 
-            var testingExportsForStates = DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST');
-            testingExportsForStates.states = {
-                TEXT: TEXT,
+            TAG_START: TAG_START,
+            TAG_NAME: TAG_NAME,
+            TAG_BODY: TAG_BODY,
+            TAG_CLOSE: TAG_CLOSE,
 
-                TAG_START: TAG_START,
-                TAG_NAME: TAG_NAME,
-                TAG_BODY: TAG_BODY,
-                TAG_CLOSE: TAG_CLOSE,
-
-                DECLARATION: DECLARATION
-            };
-
+            DECLARATION_START: DECLARATION_START
+        };
         /*@/DTesting.exports*/
 
         var letterTestRegExp = /[A-Za-z]/,
@@ -173,13 +171,16 @@
             var contextOfParse = this,
                 root = new nodes.Fragment();
 
-            contextOfParse.state = TEXT;
-            contextOfParse.buffer = '';
             contextOfParse.treeStack = [root];
-            contextOfParse.charIndex = 0;
             contextOfParse.result = root;
 
-            contextOfParse.tagname = '';
+            contextOfParse.state = TEXT;
+
+            contextOfParse.buffer = '';
+
+            contextOfParse.textBuffer = '';
+
+            contextOfParse.tagName = '';
 
             contextOfParse.attributeName = '';
             contextOfParse.attributeValue = '';
@@ -189,12 +190,12 @@
 
         ContextOfParse.destructor = function () {
             var contextOfParse = this;
+            contextOfParse.treeStack = null;
+            contextOfParse.result = null;
             contextOfParse.state = null;
             contextOfParse.buffer = null;
-            contextOfParse.treeStack = null;
-            contextOfParse.charIndex = null;
-            contextOfParse.result = null;
-            contextOfParse.tagname = null;
+            contextOfParse.textBuffer = null;
+            contextOfParse.tagName = null;
             contextOfParse.attributeName = null;
             contextOfParse.attributeValue = null;
             contextOfParse.attributes = null;
@@ -206,13 +207,13 @@
 
 
         function processingText (contextOfParse, char) {
+            contextOfParse.buffer += char;
             switch (char) {
                 case '<':
                     contextOfParse.state = TAG_START;
-                    contextOfParse.buffer += char;
                     break;
                 default:
-                    contextOfParse.buffer += char;
+                    contextOfParse.textBuffer += char;
             }
         }
 
@@ -221,21 +222,23 @@
         /*@/DTesting.exports*/
 
         function processingTagStart (contextOfParse, char) {
+            contextOfParse.buffer += char;
+
             var isChar = letterTestRegExp.test(char);
             if (isChar) {
                 contextOfParse.state = TAG_NAME;
-                contextOfParse.tagname = char;
+                contextOfParse.tagName = char;
             } else {
                 switch (char) {
                     case '!':
-                        contextOfParse.state = DECLARATION;
+                        contextOfParse.state = DECLARATION_START;
                         break;
 
                     default:
                         contextOfParse.state = TEXT;
+                        contextOfParse.textBuffer = contextOfParse.buffer;
                 }
             }
-            contextOfParse.buffer += char;
         }
 
         /*@DTesting.exports*/
@@ -243,16 +246,15 @@
         /*@/DTesting.exports*/
 
         function processingTagName (contextOfParse, char) {
+            contextOfParse.buffer += char;
             var isCorrect = tagNameCorrectSymbolRegExp.test(char);
             if (isCorrect) {
                 contextOfParse.tagname += char;
             } else if (isWhiteSpace(char)) {
-                contextOfParse.buffer += contextOfParse.tagname + char;
                 contextOfParse.state = TAG_BODY;
-            } else if (char === '/'){
-                contextOfParse.state = TEXT;
             } else {
                 contextOfParse.state = TEXT;
+                contextOfParse.textBuffer = contextOfParse.buffer;
             }
         }
 
