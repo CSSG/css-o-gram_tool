@@ -104,29 +104,19 @@
      * /helpers
      */
 
-    /**
+    /*
+     * parse
      *
-     * @param {String} html
-     * @return {Object} ast
-     */
-    function parse (html) {
-        return {};
-    }
+     * parse components
+     * */
 
     (function () {
         var nodes = htmlToAST.nodes,
-            helpers = htmlToAST.nodes,
-            statesTable = {
-                '<': 'in decrypting',
-                '<*': 'tag',
-                '</': 'closed tag',
-                '<!': 'comment',
-                '/>': 'tag closed',
-                't': 'text'
-            },
-            space = ' ',
+            helpers = htmlToAST.helpers;
 
-            buffer = '';
+        //
+        // states
+        //
 
         var stateId = 0,
 
@@ -153,19 +143,93 @@
         };
         /*@/DTesting.exports*/
 
-        var letterTestRegExp = /[A-Za-z]/,
-            tagNameCorrectSymbolRegExp = /\w|-/,
-            whiteSpaceRegExp = /\s/;
+        //
+        // /states
+        //
 
-        /*@DTesting.exports*/
-        var testingExports = DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST');
-        testingExports.letterTestRegExp = letterTestRegExp;
-        testingExports.tagNameCorrectSymbolRegExp = tagNameCorrectSymbolRegExp;
-        /*@/DTesting.exports*/
 
+        //
+        // microhelpers
+        //
+
+
+        var letterTestRegExp = /[A-Za-z]/;
+        function isCorrectTagNameStartSymbol (char) {
+            return letterTestRegExp.test(char);
+        }
+
+        var tagNameCorrectSymbolRegExp = /\w|-/;
+        function isCorrectTagNameSymbol (char) {
+            return tagNameCorrectSymbolRegExp.test(char);
+        }
+
+        var whiteSpaceRegExp = /\s/;
         function isWhiteSpace (char) {
             return whiteSpaceRegExp.test(char);
         }
+
+        /*@DTesting.exports*/
+
+        var testingExportsForMicrohelpers = DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST');
+        testingExportsForMicrohelpers.isCorrectTagNameStartSymbol = isCorrectTagNameStartSymbol;
+        testingExportsForMicrohelpers.isCorrectTagNameSymbol = isCorrectTagNameSymbol;
+        testingExportsForMicrohelpers.isWhiteSpace = isWhiteSpace;
+
+        /*@/DTesting.exports*/
+
+        //
+        // /microhelpers
+        //
+
+
+        //
+        // builders
+        //
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         */
+        function buildText (contextOfParse) {
+            var contextOfParseTreeStack = contextOfParse.treeStack,
+                newText = new nodes.Text(contextOfParse.textBuffer);
+            helpers.appendChild(contextOfParseTreeStack[contextOfParseTreeStack.length - 1], newText);
+            contextOfParse.buffer = '';
+            contextOfParse.textBuffer = '';
+            contextOfParse.state = TEXT;
+        }
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         */
+        function buildTag (contextOfParse) {
+            var contextOfParseTreeStack = contextOfParse.treeStack,
+                newTag;
+            if (contextOfParse.textBuffer) {
+                buildText(contextOfParse);
+            }
+            newTag = new nodes.Tag(contextOfParse.tagName, contextOfParse.attributes);
+            contextOfParse.tagName = '';
+            contextOfParse.attributes = null;
+            helpers.appendChild(contextOfParseTreeStack[contextOfParseTreeStack.length - 1], newTag);
+
+        }
+
+        /*@DTesting.exports*/
+
+        var testingExportsBuilders = DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'builders');
+        testingExportsBuilders.buildText = buildText;
+        testingExportsBuilders.buildTag = buildTag;
+
+
+        /*@/DTesting.exports*/
+
+        //
+        // /builders
+        //
+
+
 
         function ContextOfParse () {
             var contextOfParse = this,
@@ -205,6 +269,10 @@
         DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST').ContextOfParse = ContextOfParse;
         /*@/DTesting.exports*/
 
+        //
+        // processings
+        //
+
 
         function processingText (contextOfParse, char) {
             contextOfParse.buffer += char;
@@ -224,8 +292,7 @@
         function processingTagStart (contextOfParse, char) {
             contextOfParse.buffer += char;
 
-            var isChar = letterTestRegExp.test(char);
-            if (isChar) {
+            if (isCorrectTagNameStartSymbol(char)) {
                 contextOfParse.state = TAG_NAME;
                 contextOfParse.tagName = char;
             } else {
@@ -247,14 +314,23 @@
 
         function processingTagName (contextOfParse, char) {
             contextOfParse.buffer += char;
-            var isCorrect = tagNameCorrectSymbolRegExp.test(char);
-            if (isCorrect) {
-                contextOfParse.tagname += char;
+
+            if (isCorrectTagNameSymbol(char)) {
+                contextOfParse.tagName += char;
             } else if (isWhiteSpace(char)) {
                 contextOfParse.state = TAG_BODY;
             } else {
-                contextOfParse.state = TEXT;
-                contextOfParse.textBuffer = contextOfParse.buffer;
+                switch (char) {
+                    case '/':
+                        contextOfParse.state = TAG_CLOSE;
+                        break;
+                    case '>':
+                        break;
+                    default:
+                        contextOfParse.state = TEXT;
+                        contextOfParse.textBuffer = contextOfParse.buffer;
+                }
+
             }
         }
 
@@ -269,6 +345,11 @@
         /*@DTesting.exports*/
         DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagBody = processingTagBody;
         /*@/DTesting.exports*/
+
+        //
+        // /processings
+        //
+
 
 
         /**
@@ -303,6 +384,10 @@
 
         htmlToAST.parse = parse;
     } ());
+
+    /*
+     * /parse
+     */
 
     defaultLib.htmlToAST = htmlToAST;
 } (this));

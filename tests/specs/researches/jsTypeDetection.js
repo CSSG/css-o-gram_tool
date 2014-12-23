@@ -1,9 +1,9 @@
 describe('research: Java Script types interaction', function () {
     it('Array instance of Object', function () {
-        expect([] instanceof Object).toBe(true);
+        expect([] instanceof Object).toBeTruthy();
     });
 
     it('String not instance of Object', function () {
-        expect('' instanceof Object).toBe(false);
+        expect('' instanceof Object).toBeFalsy();
     });
 });

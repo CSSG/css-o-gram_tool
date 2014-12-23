@@ -11,7 +11,7 @@ describe('DTesting: exports', function () {
 
         } ());
         setTimeout(function () {
-            expect(DTesting.exports.exportsNamespace.subsection.privateFunctionForCheckTrue(true)).toBe(true);
+            expect(DTesting.exports.exportsNamespace.subsection.privateFunctionForCheckTrue(true)).toBeTruthy();
             done();
         }, 10);
 

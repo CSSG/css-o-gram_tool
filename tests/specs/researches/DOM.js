@@ -18,11 +18,11 @@ describe('research: DOM', function () {
         div.appendChild(div2);
 
         it('getElementsByClassName instanceof HTMLCollection', function () {
-            expect(div.getElementsByTagName('test') instanceof HTMLCollection).toBe(true);
+            expect(div.getElementsByTagName('test') instanceof HTMLCollection).toBeTruthy();
         });
 
         it('childNodes instanceof nodesList', function () {
-            expect(div.childNodes instanceof NodeList).toBe(true);
+            expect(div.childNodes instanceof NodeList).toBeTruthy();
         });
 
     });

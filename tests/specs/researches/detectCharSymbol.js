@@ -4,19 +4,19 @@ describe('research: Detect char symbol', function () {
 
         describe('range check?', function () {
             it('d > a && d < z', function () {
-                expect(('d' > 'a') && ('d' < 'z')).toBe(true);
+                expect(('d' > 'a') && ('d' < 'z')).toBeTruthy();
             });
 
             it('D > a && D < z', function () {
-                expect(('D' > 'a') && ('D' < 'z')).toBe(false);
+                expect(('D' > 'a') && ('D' < 'z')).toBeFalsy();
             });
 
             it('D > A && D < Z', function () {
-                expect(('D' > 'A') && ('D' < 'Z')).toBe(true);
+                expect(('D' > 'A') && ('D' < 'Z')).toBeTruthy();
             });
 
             it('d > A && d < Z', function () {
-                expect(('d' > 'A') && ('d' < 'Z')).toBe(false);
+                expect(('d' > 'A') && ('d' < 'Z')).toBeFalsy();
             });
         });
 
@@ -33,33 +33,33 @@ describe('research: Detect char symbol', function () {
 
         describe('handles range check', function () {
             it('D is letter', function () {
-                expect(isLetterByRange('D')).toBe(true);
+                expect(isLetterByRange('D')).toBeTruthy();
             });
 
             it('1 is not letter', function () {
-                expect(isLetterByRange('1')).toBe(false);
+                expect(isLetterByRange('1')).toBeFalsy();
             });
 
             it('. is not letter', function () {
-                expect(isLetterByRange('.')).toBe(false);
+                expect(isLetterByRange('.')).toBeFalsy();
             });
         });
 
         describe('RegExp checks', function () {
             it('D is letter by regExp', function () {
-                expect(isLetterByRegExp('D')).toBe(true);
+                expect(isLetterByRegExp('D')).toBeTruthy();
             });
 
             it('1 is not letter by regExp', function () {
-                expect(isLetterByRegExp('1')).toBe(false);
+                expect(isLetterByRegExp('1')).toBeFalsy();
             });
 
             it('. is not letter by regExp', function () {
-                expect(isLetterByRegExp('.')).toBe(false);
+                expect(isLetterByRegExp('.')).toBeFalsy();
             });
 
             it('A is letter by regExp', function () {
-                expect(isLetterByRegExp('A')).toBe(true);
+                expect(isLetterByRegExp('A')).toBeTruthy();
             });
         });
 

@@ -62,12 +62,12 @@ describe('DL: types detectors', function () {
             );
             it ('null is not ' + typeName,
                 function () {
-                    expect(DL['is' + typeName](_null)).toBe(false);
+                    expect(DL['is' + typeName](_null)).toBeFalsy();
                 }
             );
             it ('undefined is not ' + typeName,
                 function () {
-                    expect(DL['is' + typeName](undefined)).toBe(false);
+                    expect(DL['is' + typeName](undefined)).toBeFalsy();
                 }
             );
             it ('arguments is ' + ((typeName === 'Arguments') || (typeName === 'Collection') ? '' : 'not ') + typeName,

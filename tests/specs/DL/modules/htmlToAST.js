@@ -257,7 +257,7 @@ describe('DL.htmlToAST()', function () {
         });
 
         it('div is parsed as Tag', function () {
-            expect(span instanceof htmlToASTNodes.Tag).toBe(true);
+            expect(span instanceof htmlToASTNodes.Tag).toBeTruthy();
         });
 
         it('correct name', function () {
@@ -282,7 +282,7 @@ describe('DL.htmlToAST()', function () {
         });
 
         it('div is parsed as Tag', function () {
-            expect(div instanceof htmlToASTNodes.Tag).toBe(true);
+            expect(div instanceof htmlToASTNodes.Tag).toBeTruthy();
         });
 
         it('correct name', function () {
@@ -307,102 +307,263 @@ describe('DL.htmlToAST()', function () {
 
         describe('private export', function () {
 
-            describe('letterTestRegExp', function () {
-                var letterTestRegExp = DTesting.exports.DL.htmlToAST.letterTestRegExp;
+            describe('microhelpers', function () {
+                //TODO: [dmitry.makhnev] symbols collection
+                //TODO: [dmitry.makhnev] numbers collection
+                //TODO: [dmitry.makhnev] latin letters collection
+                //TODO: [dmitry.makhnev] some letters collection
+                //TODO: [dmitry.makhnev] add generations expect with all collections
 
-                it('letter is letter', function () {
-                    expect(letterTestRegExp.test('A')).toBe(true);
-                    expect(letterTestRegExp.test('Z')).toBe(true);
-                    expect(letterTestRegExp.test('a')).toBe(true);
-                    expect(letterTestRegExp.test('z')).toBe(true);
-                    expect(letterTestRegExp.test('F')).toBe(true);
-                    expect(letterTestRegExp.test('f')).toBe(true);
+                describe('isCorrectTagNameStartSymbol', function () {
+                    var isCorrectTagNameStartSymbol = DTesting.exports.DL.htmlToAST.isCorrectTagNameStartSymbol;
+
+                    it('letter is letter', function () {
+                        expect(isCorrectTagNameStartSymbol('A')).toBeTruthy();
+                        expect(isCorrectTagNameStartSymbol('Z')).toBeTruthy();
+                        expect(isCorrectTagNameStartSymbol('a')).toBeTruthy();
+                        expect(isCorrectTagNameStartSymbol('z')).toBeTruthy();
+                        expect(isCorrectTagNameStartSymbol('F')).toBeTruthy();
+                        expect(isCorrectTagNameStartSymbol('f')).toBeTruthy();
+                    });
+                    it('/ is not letter', function () {
+                        expect(isCorrectTagNameStartSymbol('/')).toBeFalsy();
+                    });
+                    it('! is not letter', function () {
+                        expect(isCorrectTagNameStartSymbol('!')).toBeFalsy();
+                    });
+                    it('- is not letter', function () {
+                        expect(isCorrectTagNameStartSymbol('-')).toBeFalsy();
+                    });
+                    it('_ is not letter', function () {
+                        expect(isCorrectTagNameStartSymbol('_')).toBeFalsy();
+                    });
+                    it('\' \' is not letter', function () {
+                        expect(isCorrectTagNameStartSymbol(' ')).toBeFalsy();
+                    });
+                    it('number is not letter', function () {
+                        expect(isCorrectTagNameStartSymbol('0')).toBeFalsy();
+                        expect(isCorrectTagNameStartSymbol('1')).toBeFalsy();
+                        expect(isCorrectTagNameStartSymbol('2')).toBeFalsy();
+                        expect(isCorrectTagNameStartSymbol('3')).toBeFalsy();
+                        expect(isCorrectTagNameStartSymbol('4')).toBeFalsy();
+                        expect(isCorrectTagNameStartSymbol('4')).toBeFalsy();
+                        expect(isCorrectTagNameStartSymbol('6')).toBeFalsy();
+                        expect(isCorrectTagNameStartSymbol('7')).toBeFalsy();
+                        expect(isCorrectTagNameStartSymbol('8')).toBeFalsy();
+                        expect(isCorrectTagNameStartSymbol('9')).toBeFalsy();
+                    });
+
                 });
-                it('/ is not letter', function () {
-                    expect(letterTestRegExp.test('/')).toBe(false);
+
+                describe('isCorrectTagNameSymbol', function () {
+                    var isCorrectTagNameSymbol = DTesting.exports.DL.htmlToAST.isCorrectTagNameSymbol;
+
+                    it('letter is correct', function () {
+                        expect(isCorrectTagNameSymbol('A')).toBeTruthy();
+                        expect(isCorrectTagNameSymbol('Z')).toBeTruthy();
+                        expect(isCorrectTagNameSymbol('a')).toBeTruthy();
+                        expect(isCorrectTagNameSymbol('z')).toBeTruthy();
+                        expect(isCorrectTagNameSymbol('F')).toBeTruthy();
+                        expect(isCorrectTagNameSymbol('f')).toBeTruthy();
+                    });
+                    it('/ is not correct', function () {
+                        expect(isCorrectTagNameSymbol('/')).toBeFalsy();
+                    });
+                    it('! is not correct', function () {
+                        expect(isCorrectTagNameSymbol('!')).toBeFalsy();
+                    });
+                    it('\' \' is not correct', function () {
+                        expect(isCorrectTagNameSymbol(' ')).toBeFalsy();
+                    });
+                    it('- is correct', function () {
+                        expect(isCorrectTagNameSymbol('-')).toBeTruthy();
+                    });
+                    it('_ is correct', function () {
+                        expect(isCorrectTagNameSymbol('_')).toBeTruthy();
+                    });
+                    it('number is correct', function () {
+                        expect(isCorrectTagNameSymbol('0')).toBeTruthy();
+                        expect(isCorrectTagNameSymbol('1')).toBeTruthy();
+                        expect(isCorrectTagNameSymbol('2')).toBeTruthy();
+                        expect(isCorrectTagNameSymbol('3')).toBeTruthy();
+                        expect(isCorrectTagNameSymbol('4')).toBeTruthy();
+                        expect(isCorrectTagNameSymbol('4')).toBeTruthy();
+                        expect(isCorrectTagNameSymbol('6')).toBeTruthy();
+                        expect(isCorrectTagNameSymbol('7')).toBeTruthy();
+                        expect(isCorrectTagNameSymbol('8')).toBeTruthy();
+                        expect(isCorrectTagNameSymbol('9')).toBeTruthy();
+                    });
                 });
-                it('! is not letter', function () {
-                    expect(letterTestRegExp.test('!')).toBe(false);
-                });
-                it('- is not letter', function () {
-                    expect(letterTestRegExp.test('-')).toBe(false);
-                });
-                it('_ is not letter', function () {
-                    expect(letterTestRegExp.test('_')).toBe(false);
-                });
-                it('\' \' is not letter', function () {
-                    expect(letterTestRegExp.test(' ')).toBe(false);
-                });
-                it('number is not letter', function () {
-                    expect(letterTestRegExp.test('0')).toBe(false);
-                    expect(letterTestRegExp.test('1')).toBe(false);
-                    expect(letterTestRegExp.test('2')).toBe(false);
-                    expect(letterTestRegExp.test('3')).toBe(false);
-                    expect(letterTestRegExp.test('4')).toBe(false);
-                    expect(letterTestRegExp.test('4')).toBe(false);
-                    expect(letterTestRegExp.test('6')).toBe(false);
-                    expect(letterTestRegExp.test('7')).toBe(false);
-                    expect(letterTestRegExp.test('8')).toBe(false);
-                    expect(letterTestRegExp.test('9')).toBe(false);
+
+                describe('isWhiteSpace', function () {
+                    var isWhiteSpace = DTesting.exports.DL.htmlToAST.isWhiteSpace;
+
+                    it('letters is incorrect', function () {
+                        expect(isWhiteSpace('A')).toBeFalsy();
+                        expect(isWhiteSpace('Z')).toBeFalsy();
+                        expect(isWhiteSpace('a')).toBeFalsy();
+                        expect(isWhiteSpace('z')).toBeFalsy();
+                        expect(isWhiteSpace('F')).toBeFalsy();
+                        expect(isWhiteSpace('f')).toBeFalsy();
+                    });
+
+                    it('symbols is incorrect', function () {
+                        expect(isWhiteSpace(',')).toBeFalsy();
+                        expect(isWhiteSpace('>')).toBeFalsy();
+                        expect(isWhiteSpace('!')).toBeFalsy();
+                        expect(isWhiteSpace('-')).toBeFalsy();
+                        expect(isWhiteSpace('_')).toBeFalsy();
+                        expect(isWhiteSpace('(')).toBeFalsy();
+                        expect(isWhiteSpace('}')).toBeFalsy();
+                    });
+
+                    it('numbers is incorrect', function () {
+                        expect(isWhiteSpace('1')).toBeFalsy();
+                        expect(isWhiteSpace('3')).toBeFalsy();
+                        expect(isWhiteSpace('6')).toBeFalsy();
+                        expect(isWhiteSpace('0')).toBeFalsy();
+                    });
+
+                    it('\' \' is correct', function () {
+                        expect(isWhiteSpace(' ')).toBeTruthy();
+                    });
+                    it('\'\\n\' is correct', function () {
+                        expect(isWhiteSpace('\n')).toBeTruthy();
+                    });
+                    it('\'\\t\' is correct', function () {
+                        expect(isWhiteSpace('\t')).toBeTruthy();
+                    });
+                    it('\'\\r\' is correct', function () {
+                        expect(isWhiteSpace('\r')).toBeTruthy();
+                    });
+                    it('\'\\f\' is correct', function () {
+                        expect(isWhiteSpace('\f')).toBeTruthy();
+                    });
+
                 });
 
             });
 
-            describe('tagNameCorrectSymbolRegExp', function () {
-                var tagNameCorrectSymbolRegExp = DTesting.exports.DL.htmlToAST.tagNameCorrectSymbolRegExp;
-
-                it('letter is correct', function () {
-                    expect(tagNameCorrectSymbolRegExp.test('A')).toBe(true);
-                    expect(tagNameCorrectSymbolRegExp.test('Z')).toBe(true);
-                    expect(tagNameCorrectSymbolRegExp.test('a')).toBe(true);
-                    expect(tagNameCorrectSymbolRegExp.test('z')).toBe(true);
-                    expect(tagNameCorrectSymbolRegExp.test('F')).toBe(true);
-                    expect(tagNameCorrectSymbolRegExp.test('f')).toBe(true);
-                });
-                it('/ is not correct', function () {
-                    expect(tagNameCorrectSymbolRegExp.test('/')).toBe(false);
-                });
-                it('! is not correct', function () {
-                    expect(tagNameCorrectSymbolRegExp.test('!')).toBe(false);
-                });
-                it('\' \' is not correct', function () {
-                    expect(tagNameCorrectSymbolRegExp.test(' ')).toBe(false);
-                });
-                it('- is correct', function () {
-                    expect(tagNameCorrectSymbolRegExp.test('-')).toBe(true);
-                });
-                it('_ is correct', function () {
-                    expect(tagNameCorrectSymbolRegExp.test('_')).toBe(true);
-                });
-                it('number is correct', function () {
-                    expect(tagNameCorrectSymbolRegExp.test('0')).toBe(true);
-                    expect(tagNameCorrectSymbolRegExp.test('1')).toBe(true);
-                    expect(tagNameCorrectSymbolRegExp.test('2')).toBe(true);
-                    expect(tagNameCorrectSymbolRegExp.test('3')).toBe(true);
-                    expect(tagNameCorrectSymbolRegExp.test('4')).toBe(true);
-                    expect(tagNameCorrectSymbolRegExp.test('4')).toBe(true);
-                    expect(tagNameCorrectSymbolRegExp.test('6')).toBe(true);
-                    expect(tagNameCorrectSymbolRegExp.test('7')).toBe(true);
-                    expect(tagNameCorrectSymbolRegExp.test('8')).toBe(true);
-                    expect(tagNameCorrectSymbolRegExp.test('9')).toBe(true);
-                });
-            });
 
             describe('syntax analyzers', function () {
                 var states = DTesting.exports.DL.htmlToAST.states,
                     processings = DTesting.exports.DL.htmlToAST.processings,
                     ContextOfParse = DTesting.exports.DL.htmlToAST.ContextOfParse;
 
-                it('states did exported', function () {
+                it('states was exported', function () {
                     expect(states).toBeDefined();
                 });
 
-                it('processings did exported', function () {
+                it('processings was exported', function () {
                     expect(processings).toBeDefined();
                 });
 
-                it('ContextOfParse did exported', function () {
+                it('ContextOfParse was exported', function () {
                     expect(ContextOfParse).toBeDefined();
+                });
+
+                describe('builders', function () {
+                    var builders = DTesting.exports.DL.htmlToAST.builders;
+
+                    it('builders was exported', function () {
+                        expect(builders).toBeDefined();
+                    });
+
+                    describe('buildText', function () {
+                        var buildText = builders.buildText;
+
+                        it('was exported', function () {
+                            expect(buildText).toBeDefined();
+                        });
+
+                        describe('build text only', function () {
+                            var contextOfParse = new ContextOfParse();
+                            contextOfParse.buffer = 'hello';
+                            contextOfParse.state = states.TEXT;
+                            contextOfParse.textBuffer = 'hello';
+
+                            buildText(contextOfParse);
+
+                            it('contextOfParse.buffer is clean', function () {
+                                expect(contextOfParse.buffer).toBe('');
+                            });
+
+                            it('contextOfParse.textBuffer is clean', function () {
+                                expect(contextOfParse.textBuffer).toBe('');
+                            });
+
+                            it('correct contextOfParse.stack state', function () {
+                                expect(contextOfParse.treeStack[1]).toBeUndefined();
+                                expect(contextOfParse.treeStack[0] instanceof  htmlToASTNodes.Fragment).toBeTruthy();
+                            });
+
+                            describe('building Text', function () {
+                                it('correct position', function () {
+                                    expect(contextOfParse.result.childNodes[0] instanceof htmlToASTNodes.Text).toBeTruthy();
+                                });
+                                it('correct Text.text', function () {
+                                    expect(contextOfParse.result.childNodes[0].text).toBe('hello');
+                                });
+                            });
+
+                        });
+
+                    });
+
+                    describe('buildTag', function () {
+                        var buildTag = builders.buildTag;
+                        it('was exported', function () {
+                            expect(buildTag).toBeDefined();
+                        });
+
+                        describe('build tag without nesting and attributes', function () {
+                            var contextOfParse = new ContextOfParse();
+                            contextOfParse.buffer = 'a<br>';
+                            contextOfParse.state = states.TAG_NAME;
+                            contextOfParse.textBuffer = 'a';
+                            contextOfParse.tagName = 'br';
+                            buildTag(contextOfParse);
+
+                            it('contextOfParse.buffer is clean', function () {
+                                expect(contextOfParse.buffer).toBe('');
+                            });
+
+                            it('contextOfParse.textBuffer is clean', function () {
+                                expect(contextOfParse.textBuffer).toBe('');
+                            });
+
+                            it('contextOfParse.tagName is clean', function () {
+                                expect(contextOfParse.tagName).toBe('');
+                            });
+
+                            it('correct contextOfParse.state', function () {
+                                expect(contextOfParse.state).toBe(states.TEXT);
+                            });
+
+                            it('correct contextOfParse.stack state', function () {
+                                expect(contextOfParse.treeStack[1]).toBeUndefined();
+                                expect(contextOfParse.treeStack[0] instanceof  htmlToASTNodes.Fragment).toBeTruthy();
+                            });
+
+                            describe('building Text', function () {
+                                it('correct position', function () {
+                                    expect(contextOfParse.result.childNodes[0] instanceof htmlToASTNodes.Text).toBeTruthy();
+                                });
+                                it('correct Text.text', function () {
+                                    expect(contextOfParse.result.childNodes[0].text).toBe('a');
+                                });
+                            });
+                            describe('building Tag', function () {
+                                it('correct position', function () {
+                                    expect(contextOfParse.result.childNodes[1] instanceof htmlToASTNodes.Tag).toBeTruthy();
+                                });
+                                it('correct Text.text', function () {
+                                    expect(contextOfParse.result.childNodes[1].name).toBe('br');
+                                });
+                            });
+                        });
+
+                    });
                 });
 
                 describe('processings', function () {
@@ -590,6 +751,80 @@ describe('DL.htmlToAST()', function () {
                                 });
                             });
 
+                            describe('to TEXT when tag close after name with \'>\' and  without \'/\'', function () {
+                                describe('tag without nesting', function () {
+                                    var contextOfParse = new ContextOfParse();
+                                    processingText(contextOfParse, 'a');
+                                    processingText(contextOfParse, '<');
+                                    processingTagStart(contextOfParse, 'b');
+                                    processingTagName(contextOfParse, 'r');
+                                    processingTagName(contextOfParse, '>');
+                                    it('contextOfParse.state is TEXT', function () {
+                                        expect(contextOfParse.state).toBe(states.TEXT);
+                                    });
+                                    it('contextOfParse.buffer is correct', function () {
+                                        expect(contextOfParse.buffer).toBe('');
+                                    });
+                                    it('contextOfParse.textBuffer is correct', function () {
+                                        expect(contextOfParse.textBuffer).toBe('');
+                                    });
+                                    it('contextOfParse.textBuffer is correct', function () {
+                                        expect(contextOfParse.tagName).toBe('');
+                                    });
+                                    describe('textNode', function () {
+                                        expect(contextOfParse.tagName).toBe('');
+                                    });
+                                    describe('tag', function () {
+
+                                    });
+                                });
+                                describe('common tag', function () {
+
+                                });
+                            });
+
+                            describe('to TAG_BODY', function () {
+                                var contextOfParse = new ContextOfParse();
+                                processingText(contextOfParse, 'a');
+                                processingText(contextOfParse, '<');
+                                processingTagStart(contextOfParse, 's');
+                                processingTagName(contextOfParse, 't');
+                                processingTagName(contextOfParse, ' ');
+                                it('contextOfParse.state is TAG_BODY', function () {
+                                    expect(contextOfParse.state).toBe(states.TAG_BODY);
+                                });
+                                it('correct contextOfParse.buffer', function () {
+                                    expect(contextOfParse.buffer).toBe('a<st ');
+                                });
+                                it('correct contextOfParse.textBuffer', function () {
+                                    expect(contextOfParse.textBuffer).toBe('a');
+                                });
+                                it('correct contextOfParse.tagName', function () {
+                                    expect(contextOfParse.tagName).toBe('st');
+                                });
+                            });
+
+                            describe('to TAG_CLOSE', function () {
+                                var contextOfParse = new ContextOfParse();
+                                processingText(contextOfParse, 'a');
+                                processingText(contextOfParse, '<');
+                                processingTagStart(contextOfParse, 's');
+                                processingTagName(contextOfParse, 't');
+                                processingTagName(contextOfParse, '/');
+                                it('contextOfParse.state is TAG_CLOSE', function () {
+                                    expect(contextOfParse.state).toBe(states.TAG_CLOSE);
+                                });
+                                it('correct contextOfParse.buffer', function () {
+                                    expect(contextOfParse.buffer).toBe('a<st/');
+                                });
+                                it('correct contextOfParse.textBuffer', function () {
+                                    expect(contextOfParse.textBuffer).toBe('a');
+                                });
+                                it('correct contextOfParse.tagName', function () {
+                                    expect(contextOfParse.tagName).toBe('st');
+                                });
+                            });
+
                         });
                     });
 
@@ -602,7 +837,7 @@ describe('DL.htmlToAST()', function () {
 
         it('any AST root is Fragment', function () {
             var ast = htmlToAST.parse('');
-            expect(ast instanceof htmlToASTNodes.Fragment).toBe(true);
+            expect(ast instanceof htmlToASTNodes.Fragment).toBeTruthy();
         });
 
         describe('one span', function () {
