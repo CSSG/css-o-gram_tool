@@ -129,9 +129,12 @@
 
             TAG_ATTRIBUTE_NAME = stateId++,
             TAG_ATTRIBUTE_TO_VALUE = stateId++,
-            TAG_ATTRIBUTE_VALUE_START = stateId++,
             TAG_ATTRIBUTE_VALUE = stateId++,
             TAG_ATTRIBUTE_VALUE_END = stateId++,
+
+            CLOSED_TAG_START = stateId++,
+            CLOSED_TAG_NAME = stateId++,
+            CLOSED_TAG_BODY = stateId++,
 
             DECLARATION_START = stateId++;
 
@@ -149,6 +152,10 @@
             TAG_ATTRIBUTE_TO_VALUE: TAG_ATTRIBUTE_TO_VALUE,
             TAG_ATTRIBUTE_VALUE: TAG_ATTRIBUTE_VALUE,
             TAG_ATTRIBUTE_VALUE_END: TAG_ATTRIBUTE_VALUE_END,
+
+            CLOSED_TAG_START: CLOSED_TAG_START,
+            CLOSED_TAG_NAME: CLOSED_TAG_NAME,
+            CLOSED_TAG_BODY: CLOSED_TAG_BODY,
 
             DECLARATION_START: DECLARATION_START
         };
@@ -347,11 +354,16 @@
          * @param {ContextOfParse} contextOfParse
          */
         function buildText (contextOfParse) {
-            var contextOfParseTreeStack = contextOfParse.treeStack,
+            var contextOfParseTreeStack,
+                newText;
+            if (contextOfParse.textBuffer) {
+                contextOfParseTreeStack = contextOfParse.treeStack;
                 newText = new nodes.Text(contextOfParse.textBuffer);
-            helpers.appendChild(contextOfParseTreeStack[contextOfParseTreeStack.length - 1], newText);
+                helpers.appendChild(contextOfParseTreeStack[contextOfParseTreeStack.length - 1], newText);
+                contextOfParse.textBuffer = '';
+            }
             contextOfParse.buffer = '';
-            contextOfParse.textBuffer = '';
+
         }
 
         /**
@@ -364,9 +376,7 @@
                 newTag,
                 tagName = contextOfParse.tagName;
 
-            if (contextOfParse.textBuffer) {
-                buildText(contextOfParse);
-            }
+            buildText(contextOfParse);
 
             newTag = new nodes.Tag(tagName, contextOfParse.attributes);
 
@@ -383,13 +393,34 @@
 
         }
 
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         */
+        function closeTag (contextOfParse) {
+            var tagName = contextOfParse.tagName,
+                treeStack = contextOfParse.treeStack;
+
+            buildText(contextOfParse);
+
+            while (
+                (treeStack.length !== 1)
+                && ((treeStack.pop()).name !== tagName)
+            ) {}
+
+            contextOfParse.state = TEXT;
+        }
+
         /*@DTesting.exports*/
 
         var testingExportsBuilders = DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'builders');
         testingExportsBuilders.buildText = buildText;
         testingExportsBuilders.buildTag = buildTag;
+        testingExportsBuilders.closeTag = closeTag;
 
         /*@/DTesting.exports*/
+
+
 
         //
         // /builders
@@ -436,10 +467,12 @@
                 contextOfParse.attributes = null;
             } else {
                 switch (char) {
+                    case '/':
+                        contextOfParse.state = CLOSED_TAG_START;
+                        break;
                     case '!':
                         contextOfParse.state = DECLARATION_START;
                         break;
-
                     default:
                         clearForTextState(contextOfParse);
                 }
@@ -640,6 +673,71 @@
         /*@DTesting.exports*/
         DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagClose = processingTagClose;
         /*@/DTesting.exports*/
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
+        function processingClosedTagStart (contextOfParse, char) {
+            addCharForBuffer(contextOfParse, char);
+
+            if (isCorrectTagNameStartSymbol(char)) {
+                contextOfParse.tagName = char;
+                contextOfParse.state = CLOSED_TAG_NAME;
+            } else {
+                clearForTextState(contextOfParse);
+            }
+        }
+
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingClosedTagStart = processingClosedTagStart;
+        /*@/DTesting.exports*/
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
+        function processingClosedTagName (contextOfParse, char) {
+            addCharForBuffer(contextOfParse, char);
+
+            if (isCorrectTagNameStartSymbol(char)) {
+                contextOfParse.tagName += char;
+            } else if (char === '>') {
+                closeTag(contextOfParse);
+            } else if (isWhiteSpace(char)) {
+                contextOfParse.state = CLOSED_TAG_BODY;
+            } else {
+                clearForTextState(contextOfParse);
+            }
+        }
+
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingClosedTagName = processingClosedTagName;
+        /*@/DTesting.exports*/
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
+        function processingClosedTagBody (contextOfParse, char) {
+            addCharForBuffer(contextOfParse, char);
+
+            if (char === '>') {
+                closeTag(contextOfParse);
+            } else if (!isWhiteSpace(char)) {
+                clearForTextState(contextOfParse);
+            }
+        }
+
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingClosedTagBody = processingClosedTagBody;
+        /*@/DTesting.exports*/
+
+
+
 
         //
         // /processings
