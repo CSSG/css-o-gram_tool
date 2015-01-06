@@ -147,7 +147,6 @@
 
             TAG_ATTRIBUTE_NAME: TAG_ATTRIBUTE_NAME,
             TAG_ATTRIBUTE_TO_VALUE: TAG_ATTRIBUTE_TO_VALUE,
-            TAG_ATTRIBUTE_VALUE_START: TAG_ATTRIBUTE_VALUE_START,
             TAG_ATTRIBUTE_VALUE: TAG_ATTRIBUTE_VALUE,
             TAG_ATTRIBUTE_VALUE_END: TAG_ATTRIBUTE_VALUE_END,
 
@@ -299,6 +298,24 @@
             contextOfParse.state = TEXT;
         }
 
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} [attributeValue]
+         */
+        function addAttribute (contextOfParse, attributeValue) {
+            var attributes = contextOfParse.attributes,
+                u;
+            if (!attributes) {
+                contextOfParse.attributes = attributes = {};
+            }
+
+            attributes[contextOfParse.attributeName] = attributeValue !== u ?
+                attributeValue
+                : contextOfParse.attributeValue;
+
+        }
+
 
         /*@DTesting.exports*/
 
@@ -312,6 +329,7 @@
         testingExportsForMicrohelpers.isCorrectAttributeNameSymbol = isCorrectAttributeNameSymbol;
         testingExportsForMicrohelpers.addCharForBuffer = addCharForBuffer;
         testingExportsForMicrohelpers.clearForTextState = clearForTextState;
+        testingExportsForMicrohelpers.addAttribute = addAttribute;
 
         /*@/DTesting.exports*/
 
@@ -503,12 +521,28 @@
          */
         function processingTagAttributeName (contextOfParse, char) {
             addCharForBuffer(contextOfParse, char);
-            if (char === '=') {
-                contextOfParse.state = TAG_ATTRIBUTE_TO_VALUE;
-            } else if (isCorrectAttributeNameSymbol(char)) {
-                contextOfParse.attributeName += char;
-            } else {
-                clearForTextState(contextOfParse);
+
+            switch (char) {
+                case '=':
+                    contextOfParse.state = TAG_ATTRIBUTE_TO_VALUE;
+                    break;
+                case '>':
+                    addAttribute(contextOfParse, '');
+                    buildTag(contextOfParse);
+                    break;
+                case '/':
+                    addAttribute(contextOfParse, '');
+                    contextOfParse.state = TAG_CLOSE;
+                    break;
+                default:
+                    if (isCorrectAttributeNameSymbol(char)) {
+                        contextOfParse.attributeName += char;
+                    } else if (isWhiteSpace(char)) {
+                        addAttribute(contextOfParse, '');
+                        contextOfParse.state = TAG_BODY;
+                    } else {
+                        clearForTextState(contextOfParse);
+                    }
             }
         }
 
@@ -527,8 +561,9 @@
             switch (char) {
                 case '\'':
                 case '"':
-                    contextOfParse.state = TAG_ATTRIBUTE_VALUE_START;
+                    contextOfParse.state = TAG_ATTRIBUTE_VALUE;
                     contextOfParse.attributeValueSeparator = char;
+                    contextOfParse.attributeValue = '';
                     break;
                 default:
                     clearForTextState(contextOfParse);
@@ -537,6 +572,26 @@
 
         /*@DTesting.exports*/
         DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagAttributeToValue = processingTagAttributeToValue;
+        /*@/DTesting.exports*/
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
+        function processingTagAttributeValue (contextOfParse, char) {
+            addCharForBuffer(contextOfParse, char);
+
+            if (char === contextOfParse.attributeValueSeparator) {
+                contextOfParse.state = TAG_ATTRIBUTE_VALUE_END;
+                addAttribute(contextOfParse);
+            } else {
+                contextOfParse.attributeValue += char;
+            }
+        }
+
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagAttributeValue = processingTagAttributeValue;
         /*@/DTesting.exports*/
 
         /**

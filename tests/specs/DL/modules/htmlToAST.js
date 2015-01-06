@@ -699,6 +699,73 @@ describe('DL.htmlToAST()', function () {
 
                 });
 
+                describe('addAttribute', function () {
+                    var addAttribute = htmlToASTExport.addAttribute;
+
+                    it('was exported', function () {
+                        expect(addAttribute).toBeDefined();
+                    });
+
+                    describe('correct for contextOfParse only with empty attributes', function () {
+                        var contextOfParse = new ContextOfParse();
+                        contextOfParse.attributeName = 'id';
+                        contextOfParse.attributeValue = 'main';
+                        addAttribute(contextOfParse);
+                        it('attributes is object', function () {
+                            expect(contextOfParse.attributes).toEqual(jasmine.any(Object));
+                        });
+                        it('attribute defined', function () {
+                            expect(contextOfParse.attributes['id']).toBeDefined();
+                        });
+                        it('attribute has correct value', function () {
+                            expect(contextOfParse.attributes['id']).toBe('main');
+                        });
+                    });
+
+                    describe('correct for contextOfParse only with attributes', function () {
+                        var contextOfParse = new ContextOfParse(),
+                            attributesCache = {
+                                'class': 'alpha'
+                            };
+
+                        contextOfParse.attributes = attributesCache;
+                        contextOfParse.attributeName = 'id';
+                        contextOfParse.attributeValue = 'main';
+                        addAttribute(contextOfParse);
+
+                        it('contextOfParse.attributes is saved', function () {
+                            expect(contextOfParse.attributes).toBe(attributesCache);
+                        });
+                        it('attributes is object', function () {
+                            expect(contextOfParse.attributes).toEqual(jasmine.any(Object));
+                        });
+                        it('attribute defined', function () {
+                            expect(contextOfParse.attributes['id']).toBeDefined();
+                        });
+                        it('attribute has correct value', function () {
+                            expect(contextOfParse.attributes['id']).toBe('main');
+                        });
+
+                    });
+
+                    describe('correct for contextOfParse with attributeValue', function () {
+                        var contextOfParse = new ContextOfParse();
+                        contextOfParse.attributeName = 'id';
+                        contextOfParse.attributeValue = 'main';
+                        addAttribute(contextOfParse, 'test');
+                        it('attributes is object', function () {
+                            expect(contextOfParse.attributes).toEqual(jasmine.any(Object));
+                        });
+                        it('attribute defined', function () {
+                            expect(contextOfParse.attributes['id']).toBeDefined();
+                        });
+                        it('attribute has correct value', function () {
+                            expect(contextOfParse.attributes['id']).toBe('test');
+                        });
+                    });
+
+                });
+
             });
 
             var builders;
@@ -1387,6 +1454,8 @@ describe('DL.htmlToAST()', function () {
                                 expect(contextOfParse.attributeName).toBe('a');
                             });
 
+
+
                         });
 
                     });
@@ -1505,7 +1574,96 @@ describe('DL.htmlToAST()', function () {
                             });
                         });
 
-                        describe('to TAG_ATTRIBUTE_VALUE_START for \'\'\'', function () {
+                        describe('to TEXT when tag closed', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, 'a');
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, 'd');
+                            processingTagName(contextOfParse, 'i');
+                            processingTagName(contextOfParse, 'v');
+                            processingTagName(contextOfParse, ' ');
+                            processingTagBody(contextOfParse, 'd');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, 't');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, '>');
+
+                            it('contextOfParse.state is TEXT', function () {
+                                expect(contextOfParse.state).toBe(states.TEXT);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('');
+                            });
+
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('');
+                            });
+
+                            it('contextOfParse.attributeName is correct', function () {
+                                expect(contextOfParse.attributeName).toBe('data');
+                            });
+
+                            it('attributes is object', function () {
+                                expect(contextOfParse.attributes).toEqual(jasmine.any(Object));
+                            });
+
+                            it('attribute defined', function () {
+                                expect(contextOfParse.attributes['data']).toBeDefined();
+                            });
+
+                            it('attribute has correct value', function () {
+                                expect(contextOfParse.attributes['data']).toBe('');
+                            });
+
+                            describe('textNode', function () {
+                                var textNode = contextOfParse.result.childNodes[0];
+                                it('is define', function () {
+                                    expect(textNode).toBeDefined();
+                                });
+                                it('is TextNode', function () {
+                                    expect(textNode instanceof htmlToASTNodes.Text).toBeTruthy();
+                                });
+                                it('correct textNode.text', function () {
+                                    expect(textNode.text).toBe('a');
+                                });
+                            });
+
+                            describe('tag', function () {
+                                var tag = contextOfParse.result.childNodes[1];
+                                it('is define', function () {
+                                    expect(tag).toBeDefined();
+                                });
+                                it('is TextNode', function () {
+                                    expect(tag instanceof htmlToASTNodes.Tag).toBeTruthy();
+                                });
+                                it('correct textNode.text', function () {
+                                    expect(tag.name).toBe('div');
+                                });
+                                it('add to contextOfParse.treeStack', function () {
+                                    var treeStack = contextOfParse.treeStack,
+                                        contextOfParseResult = contextOfParse.result;
+                                    expect(treeStack.length).toBe(2);
+                                    expect(treeStack[0]).toBe(contextOfParseResult);
+                                    expect(treeStack[1]).toBe(contextOfParseResult.childNodes[1]);
+                                });
+
+                                it('attributes is object', function () {
+                                    expect(tag.attributes).toEqual(jasmine.any(Object));
+                                });
+
+                                it('attribute defined', function () {
+                                    expect(tag.attributes['data']).toBeDefined();
+                                });
+
+                                it('attribute has correct value', function () {
+                                    expect(tag.attributes['data']).toBe('');
+                                });
+                            });
+
+                        });
+
+                        describe('to TAG_ATTRIBUTE_VALUE for \'\'\'', function () {
                             var contextOfParse = new ContextOfParse();
                             processingText(contextOfParse, 'a');
                             processingText(contextOfParse, '<');
@@ -1520,8 +1678,8 @@ describe('DL.htmlToAST()', function () {
                             processingTagAttributeName(contextOfParse, '=');
                             processingTagAttributeToValue(contextOfParse, '\'');
 
-                            it('contextOfParse.state is TAG_ATTRIBUTE_TO_VALUE', function () {
-                                expect(contextOfParse.state).toBe(states.TAG_ATTRIBUTE_VALUE_START);
+                            it('contextOfParse.state is TAG_ATTRIBUTE_VALUE', function () {
+                                expect(contextOfParse.state).toBe(states.TAG_ATTRIBUTE_VALUE);
                             });
 
                             it('contextOfParse.buffer is correct', function () {
@@ -1539,9 +1697,13 @@ describe('DL.htmlToAST()', function () {
                             it('contextOfParse.attributeValueSeparator is correct', function () {
                                 expect(contextOfParse.attributeValueSeparator).toBe('\'');
                             });
+
+                            it('contextOfParse.attributeValueSeparator is correct', function () {
+                                expect(contextOfParse.attributeValue).toBe('');
+                            });
                         });
 
-                        describe('to TAG_ATTRIBUTE_VALUE_START for \'"\'', function () {
+                        describe('to TAG_ATTRIBUTE_VALUE for \'"\'', function () {
                             var contextOfParse = new ContextOfParse();
                             processingText(contextOfParse, 'a');
                             processingText(contextOfParse, '<');
@@ -1556,8 +1718,8 @@ describe('DL.htmlToAST()', function () {
                             processingTagAttributeName(contextOfParse, '=');
                             processingTagAttributeToValue(contextOfParse, '"');
 
-                            it('contextOfParse.state is TAG_ATTRIBUTE_TO_VALUE', function () {
-                                expect(contextOfParse.state).toBe(states.TAG_ATTRIBUTE_VALUE_START);
+                            it('contextOfParse.state is TAG_ATTRIBUTE_VALUE', function () {
+                                expect(contextOfParse.state).toBe(states.TAG_ATTRIBUTE_VALUE);
                             });
 
                             it('contextOfParse.buffer is correct', function () {
@@ -1575,7 +1737,153 @@ describe('DL.htmlToAST()', function () {
                             it('contextOfParse.attributeValueSeparator is correct', function () {
                                 expect(contextOfParse.attributeValueSeparator).toBe('"');
                             });
+
+                            it('contextOfParse.attributeName is correct', function () {
+                                expect(contextOfParse.attributeValue).toBe('');
+                            });
                         });
+
+                        describe('to TAG_BODY for attribute without value', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, 'a');
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, 'd');
+                            processingTagName(contextOfParse, 'i');
+                            processingTagName(contextOfParse, 'v');
+                            processingTagName(contextOfParse, ' ');
+                            processingTagBody(contextOfParse, 'd');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, 't');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, ' ');
+
+                            it('contextOfParse.state is TAG_BODY', function () {
+                                expect(contextOfParse.state).toBe(states.TAG_BODY);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('a<div data ');
+                            });
+
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('a');
+                            });
+
+                            it('contextOfParse.attributeName is correct', function () {
+                                expect(contextOfParse.attributeName).toBe('data');
+                            });
+
+                            it('attributes is object', function () {
+                                expect(contextOfParse.attributes).toEqual(jasmine.any(Object));
+                            });
+                            it('attribute defined', function () {
+                                expect(contextOfParse.attributes['data']).toBeDefined();
+                            });
+                            it('attribute has correct value', function () {
+                                expect(contextOfParse.attributes['data']).toBe('');
+                            });
+
+
+                        });
+
+                        describe('to TAG_CLOSE for attribute without value', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, 'a');
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, 'd');
+                            processingTagName(contextOfParse, 'i');
+                            processingTagName(contextOfParse, 'v');
+                            processingTagName(contextOfParse, ' ');
+                            processingTagBody(contextOfParse, 'd');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, 't');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, '/');
+
+                            it('contextOfParse.state is TAG_CLOSE', function () {
+                                expect(contextOfParse.state).toBe(states.TAG_CLOSE);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('a<div data/');
+                            });
+
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('a');
+                            });
+
+                            it('contextOfParse.attributeName is correct', function () {
+                                expect(contextOfParse.attributeName).toBe('data');
+                            });
+
+                            it('attributes is object', function () {
+                                expect(contextOfParse.attributes).toEqual(jasmine.any(Object));
+                            });
+                            it('attribute defined', function () {
+                                expect(contextOfParse.attributes['data']).toBeDefined();
+                            });
+                            it('attribute has correct value', function () {
+                                expect(contextOfParse.attributes['data']).toBe('');
+                            });
+
+                        });
+                    });
+                });
+
+                describe('processingTagAttributeValue', function () {
+                    var processingTagAttributeValue = processings.processingTagAttributeValue,
+                        processingTagAttributeToValue = processings.processingTagAttributeToValue,
+                        processingTagAttributeName = processings.processingTagAttributeName,
+                        processingTagBody = processings.processingTagBody,
+                        processingText = processings.processingText,
+                        processingTagStart = processings.processingTagStart,
+                        processingTagName = processings.processingTagName;
+
+                    it('was exported', function () {
+                        expect(processingTagAttributeToValue).toBeDefined();
+                    });
+
+                    describe('change state', function () {
+                        describe('to TAG_ATTRIBUTE_VALUE_END when incorrect symbol', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, 'a');
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, 'd');
+                            processingTagName(contextOfParse, 'i');
+                            processingTagName(contextOfParse, 'v');
+                            processingTagName(contextOfParse, ' ');
+                            processingTagBody(contextOfParse, 'd');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, 't');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, '=');
+                            processingTagAttributeToValue(contextOfParse, '"');
+                            processingTagAttributeValue(contextOfParse, 'a');
+                            processingTagAttributeValue(contextOfParse, '"');
+
+                            it('contextOfParse.state is TAG_ATTRIBUTE_VALUE_END', function () {
+                                expect(contextOfParse.state).toBe(states.TAG_ATTRIBUTE_VALUE_END);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('a<div data="a"');
+                            });
+
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('a');
+                            });
+
+                            it('contextOfParse.attributes is object', function () {
+                                expect(contextOfParse.attributes).toEqual(jasmine.any(Object));
+                            });
+                            it('attribute defined', function () {
+                                expect(contextOfParse.attributes['data']).toBeDefined();
+                            });
+                            it('attribute has correct value', function () {
+                                expect(contextOfParse.attributes['data']).toBe('a');
+                            });
+                        });
+
                     });
                 });
 
