@@ -152,7 +152,7 @@
         //
         /**
          *
-         * @param {object} settings
+         * @param {object} [settings]
          * @constructor
          */
         function ContextOfParse (settings) {
@@ -185,7 +185,7 @@
             contextOfParse.isXMLMode = isXMLMode;
         }
 
-        ContextOfParse.destructor = function () {
+        ContextOfParse.prototype.destructor = function () {
             var contextOfParse = this;
             contextOfParse.treeStack = null;
             contextOfParse.result = null;

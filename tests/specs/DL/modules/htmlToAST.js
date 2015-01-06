@@ -394,6 +394,51 @@ describe('DL.htmlToAST()', function () {
 
                 });
 
+                describe('destructor', function () {
+                    var contextOfParse = new ContextOfParse();
+
+                    it('has', function () {
+                        expect(contextOfParse.destructor).toBeDefined();
+                    });
+
+                    it('work', function () {
+                        contextOfParse.destructor();
+                        expect(true).toBeTruthy();
+                    });
+
+                    describe('properties is clean', function () {
+                        it('treeStack', function () {
+                            expect(contextOfParse.treeStack).toBeNull();
+                        });
+                        it('result', function () {
+                            expect(contextOfParse.result).toBeNull();
+                        });
+                        it('state', function () {
+                            expect(contextOfParse.state).toBeNull();
+                        });
+                        it('buffer', function () {
+                            expect(contextOfParse.buffer).toBeNull();
+                        });
+                        it('textBuffer', function () {
+                            expect(contextOfParse.textBuffer).toBeNull();
+                        });
+                        it('tagName', function () {
+                            expect(contextOfParse.tagName).toBeNull();
+                        });
+                        it('attributeName', function () {
+                            expect(contextOfParse.attributeName).toBeNull();
+                        });
+                        it('attributeValue', function () {
+                            expect(contextOfParse.attributeValue).toBeNull();
+                        });
+                        it('attributes', function () {
+                            expect(contextOfParse.attributes).toBeNull();
+                        });
+
+                    });
+
+                });
+
             });
 
             describe('microhelpers', function () {
