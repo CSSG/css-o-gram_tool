@@ -52,6 +52,7 @@ module.exports = function(config) {
         'tests/specs/DL/utils/typesDetectors.js',
         'tests/specs/DL/utils/cycle.js',
         'tests/specs/DL/utils/getObjectSafely.js',
+        'tests/specs/DL/utils/getObjectLength.js',
 
         //Default Lib utils modules
         'tests/specs/DL/modules/htmlToAST.js'

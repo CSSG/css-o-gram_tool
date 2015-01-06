@@ -777,6 +777,18 @@
                     case TAG_ATTRIBUTE_VALUE:
                         processingTagAttributeValue(contextOfParse, char);
                         break;
+                    case TAG_ATTRIBUTE_VALUE_END:
+                        processingAttributeValueEnd(contextOfParse, char);
+                        break;
+                    case CLOSED_TAG_START:
+                        processingClosedTagStart(contextOfParse, char);
+                        break;
+                    case CLOSED_TAG_NAME:
+                        processingClosedTagName(contextOfParse, char);
+                        break;
+                    case CLOSED_TAG_BODY:
+                        processingClosedTagBody(contextOfParse, char);
+                        break;
                     case TAG_CLOSE:
                         processingTagClose(contextOfParse, char);
                         break;

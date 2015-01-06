@@ -242,67 +242,6 @@ describe('DL.htmlToAST()', function () {
     });
 
 
-
-
-    function createDefaultSpan(contentItem) {
-        var createTagArguments = ['span', null];
-        DL.cycle(arguments, function (contentItem) {
-            createTagArguments.push(contentItem);
-        });
-        return DTesting.utils.createTag.apply(DTesting.utils, createTagArguments);
-    }
-    function defaultSpanTests(span) {
-        it('div is parsed', function () {
-            expect(span).toBeDefined();
-        });
-
-        it('div is parsed as Tag', function () {
-            expect(span instanceof htmlToASTNodes.Tag).toBeTruthy();
-        });
-
-        it('correct name', function () {
-            expect(span.name).toBe('div');
-        });
-
-        it('attributes is empty', function () {
-            expect(DL.getObjectLength(span.attributes)).toBe(0);
-        });
-    }
-
-    function createDefaultDiv(contentItem) {
-        var createTagArguments = ['div', {'class': 'block', 'data-foo': 'bar'}];
-        DL.cycle(arguments, function (contentItem) {
-            createTagArguments.push(contentItem);
-        });
-        return DTesting.utils.createTag.apply(DTesting.utils, createTagArguments);
-    }
-    function defaultDivTests (div) {
-        it ('div is parsed', function () {
-            expect(div).toBeDefined();
-        });
-
-        it('div is parsed as Tag', function () {
-            expect(div instanceof htmlToASTNodes.Tag).toBeTruthy();
-        });
-
-        it('correct name', function () {
-            expect(div.name).toBe('div');
-        });
-
-        describe('correct attributes', function () {
-            var attributes = div.attributes;
-            it('class is block', function () {
-                expect(attributes['class']).toBe('block');
-            });
-            it('data-foo is bar', function () {
-                expect(attributes['data-foo']).toBe('bar');
-            });
-        });
-
-    }
-
-
-
     describe('parse', function () {
 
         describe('private export', function () {
@@ -2647,12 +2586,76 @@ describe('DL.htmlToAST()', function () {
             expect(ast instanceof htmlToASTNodes.Fragment).toBeTruthy();
         });
 
+        function createDefaultSpan(contentItem) {
+            var createTagArguments = ['span', null];
+            DL.cycle(arguments, function (contentItem) {
+                createTagArguments.push(contentItem);
+            });
+            return DTesting.utils.createTag.apply(DTesting.utils, createTagArguments);
+        }
+        function defaultSpanTests(span) {
+            it('span is parsed', function () {
+                expect(span).toBeDefined();
+            });
+
+            it('span is parsed as Tag', function () {
+                expect(span instanceof htmlToASTNodes.Tag).toBeTruthy();
+            });
+
+            it('correct name', function () {
+                expect(span.name).toBe('span');
+            });
+
+            it('attributes is empty', function () {
+                expect(DL.getObjectLength(span.attributes)).toBe(0);
+            });
+        }
+
+        function createDefaultDiv(contentItem) {
+            var createTagArguments = ['div', {'class': 'block', 'data-foo': 'bar'}];
+            DL.cycle(arguments, function (contentItem) {
+                createTagArguments.push(contentItem);
+            });
+            return DTesting.utils.createTag.apply(DTesting.utils, createTagArguments);
+        }
+
+        function defaultDivTests (div) {
+            it ('div is parsed', function () {
+                expect(div).toBeDefined();
+            });
+
+            it('div is parsed as Tag', function () {
+                expect(div instanceof htmlToASTNodes.Tag).toBeTruthy();
+            });
+
+            it('correct name', function () {
+                expect(div.name).toBe('div');
+            });
+
+            describe('correct attributes', function () {
+                var attributes = div.attributes;
+                it('class is block', function () {
+                    expect(attributes['class']).toBe('block');
+                });
+                it('data-foo is bar', function () {
+                    expect(attributes['data-foo']).toBe('bar');
+                });
+            });
+
+        }
+
+        describe('parse testing helpers', function () {
+            it('createDefaultDiv', function () {
+                expect(createDefaultDiv()).toEqual('<div class="block" data-foo="bar"></div>');
+            });
+        });
+
         describe('one span', function () {
 
             var ast = htmlToAST.parse(createDefaultSpan()),
                 span = ast.childNodes[0];
 
-            defaultDivTests(span);
+            defaultSpanTests(span);
 
         });
 
