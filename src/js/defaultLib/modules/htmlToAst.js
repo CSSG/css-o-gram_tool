@@ -127,6 +127,12 @@
             TAG_BODY = stateId++,
             TAG_CLOSE = stateId++,
 
+            TAG_ATTRIBUTE_NAME = stateId++,
+            TAG_ATTRIBUTE_TO_VALUE = stateId++,
+            TAG_ATTRIBUTE_VALUE_STAR = stateId++,
+            TAG_ATTRIBUTE_VALUE = stateId++,
+            TAG_ATTRIBUTE_VALUE_END = stateId++,
+
             DECLARATION_START = stateId++;
 
         /*@DTesting.exports*/
@@ -138,6 +144,12 @@
             TAG_NAME: TAG_NAME,
             TAG_BODY: TAG_BODY,
             TAG_CLOSE: TAG_CLOSE,
+
+            TAG_ATTRIBUTE_NAME: TAG_ATTRIBUTE_NAME,
+            TAG_ATTRIBUTE_TO_VALUE: TAG_ATTRIBUTE_TO_VALUE,
+            TAG_ATTRIBUTE_VALUE_STAR: TAG_ATTRIBUTE_VALUE_STAR,
+            TAG_ATTRIBUTE_VALUE: TAG_ATTRIBUTE_VALUE,
+            TAG_ATTRIBUTE_VALUE_END: TAG_ATTRIBUTE_VALUE_END,
 
             DECLARATION_START: DECLARATION_START
         };
@@ -223,6 +235,7 @@
             return letterTestRegExp.test(char);
         }
 
+
         var tagNameCorrectSymbolRegExp = /\w|-/;
 
         /**
@@ -233,6 +246,7 @@
         function isCorrectTagNameSymbol (char) {
             return tagNameCorrectSymbolRegExp.test(char);
         }
+
 
         var whiteSpaceRegExp = /\s/;
 
@@ -245,8 +259,10 @@
             return whiteSpaceRegExp.test(char);
         }
 
+
         //var tagsWithoutNesting = ['img', 'input', 'br', 'link', 'meta',  'hr', 'col', 'param', 'source', 'track', 'menuitem', 'keygen', 'area', 'base', 'basefont', 'option'];
         var simpleHTMLTags = ['img', 'input', 'br', 'hr', 'link', 'meta'];
+
         /**
          *
          * @param {String} tagName
@@ -256,13 +272,44 @@
             return simpleHTMLTags.indexOf(tagName) !== -1;
         }
 
+
+        var isCorrectAttributeNameStartSymbol = isCorrectTagNameStartSymbol;
+
+
+        var isCorrectAttributeNameSymbol = isCorrectTagNameSymbol;
+
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
+        function addCharForBuffer (contextOfParse, char) {
+            contextOfParse.buffer += char;
+        }
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         */
+        function clearForTextState (contextOfParse) {
+            contextOfParse.textBuffer = contextOfParse.buffer;
+            contextOfParse.state = TEXT;
+        }
+
+
         /*@DTesting.exports*/
 
         var testingExportsForMicrohelpers = DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST');
+
         testingExportsForMicrohelpers.isCorrectTagNameStartSymbol = isCorrectTagNameStartSymbol;
         testingExportsForMicrohelpers.isCorrectTagNameSymbol = isCorrectTagNameSymbol;
         testingExportsForMicrohelpers.isWhiteSpace = isWhiteSpace;
         testingExportsForMicrohelpers.testOfSimpleHTMLTag = testOfSimpleHTMLTag;
+        testingExportsForMicrohelpers.isCorrectAttributeNameStartSymbol = isCorrectAttributeNameStartSymbol;
+        testingExportsForMicrohelpers.isCorrectAttributeNameSymbol = isCorrectAttributeNameSymbol;
+        testingExportsForMicrohelpers.addCharForBuffer = addCharForBuffer;
+        testingExportsForMicrohelpers.clearForTextState = clearForTextState;
 
         /*@/DTesting.exports*/
 
@@ -285,7 +332,6 @@
             helpers.appendChild(contextOfParseTreeStack[contextOfParseTreeStack.length - 1], newText);
             contextOfParse.buffer = '';
             contextOfParse.textBuffer = '';
-            contextOfParse.state = TEXT;
         }
 
         /**
@@ -303,8 +349,6 @@
             }
 
             newTag = new nodes.Tag(tagName, contextOfParse.attributes);
-            contextOfParse.tagName = '';
-            contextOfParse.attributes = null;
 
             helpers.appendChild(contextOfParseTreeStack[contextOfParseTreeStack.length - 1], newTag);
 
@@ -314,6 +358,8 @@
             ) {
                 contextOfParseTreeStack.push(newTag);
             }
+
+            contextOfParse.state = TEXT;
 
         }
 
@@ -341,7 +387,8 @@
          * @param {String} char
          */
         function processingText (contextOfParse, char) {
-            contextOfParse.buffer += char;
+            addCharForBuffer(contextOfParse, char);
+
             switch (char) {
                 case '<':
                     contextOfParse.state = TAG_START;
@@ -361,11 +408,12 @@
          * @param {String} char
          */
         function processingTagStart (contextOfParse, char) {
-            contextOfParse.buffer += char;
+            addCharForBuffer(contextOfParse, char);
 
             if (isCorrectTagNameStartSymbol(char)) {
                 contextOfParse.state = TAG_NAME;
                 contextOfParse.tagName = char;
+                contextOfParse.attributes = null;
             } else {
                 switch (char) {
                     case '!':
@@ -373,8 +421,7 @@
                         break;
 
                     default:
-                        contextOfParse.state = TEXT;
-                        contextOfParse.textBuffer = contextOfParse.buffer;
+                        clearForTextState(contextOfParse);
                 }
             }
         }
@@ -389,7 +436,7 @@
          * @param {String} char
          */
         function processingTagName (contextOfParse, char) {
-            contextOfParse.buffer += char;
+            addCharForBuffer(contextOfParse, char);
 
             if (isCorrectTagNameSymbol(char)) {
                 contextOfParse.tagName += char;
@@ -405,8 +452,7 @@
                         buildTag(contextOfParse);
                         break;
                     default:
-                        contextOfParse.state = TEXT;
-                        contextOfParse.textBuffer = contextOfParse.buffer;
+                        clearForTextState(contextOfParse);
                 }
 
             }
@@ -422,11 +468,45 @@
          * @param {String} char
          */
         function processingTagBody (contextOfParse, char) {
+            addCharForBuffer(contextOfParse, char);
+
+            if (!isWhiteSpace(char)) {
+                if (isCorrectAttributeNameStartSymbol(char)) {
+                    contextOfParse.state = TAG_ATTRIBUTE_NAME;
+                    contextOfParse.attributeName = char;
+                } else {
+                    switch (char) {
+                        case '/':
+                            contextOfParse.state = TAG_CLOSE;
+                            break;
+                        case '>':
+                            buildTag(contextOfParse);
+                            break;
+                        default:
+                            clearForTextState(contextOfParse);
+                    }
+                }
+            }
 
         }
 
         /*@DTesting.exports*/
         DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagBody = processingTagBody;
+        /*@/DTesting.exports*/
+
+        function processingTagAttributeName (contextOfParse, char) {
+            addCharForBuffer(contextOfParse, char);
+            if (char === '=') {
+                contextOfParse.state = TAG_ATTRIBUTE_TO_VALUE;
+            } else if (isCorrectAttributeNameSymbol(char)) {
+                contextOfParse.attributeName += char;
+            } else {
+                clearForTextState(contextOfParse);
+            }
+        }
+
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagAttributeName = processingTagAttributeName;
         /*@/DTesting.exports*/
 
         /**
@@ -438,10 +518,8 @@
             if (char === '>') {
                 buildTag(contextOfParse, true);
             } else {
-                contextOfParse.state = TEXT;
-                contextOfParse.buffer += char;
-                contextOfParse.textBuffer = contextOfParse.buffer;
-                contextOfParse.tagName = '';
+                addCharForBuffer(contextOfParse, char);
+                clearForTextState(contextOfParse);
             }
         }
 
@@ -477,6 +555,9 @@
                         break;
                     case TAG_BODY:
                         processingTagBody(contextOfParse, char);
+                        break;
+                    case TAG_ATTRIBUTE_NAME:
+                        processingTagAttributeName(contextOfParse, char);
                         break;
                     case TAG_CLOSE:
                         processingTagClose(contextOfParse, char);

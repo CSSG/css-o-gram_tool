@@ -614,6 +614,81 @@ describe('DL.htmlToAST()', function () {
                         expect(testOfSimpleHTMLTag('meta')).toBeTruthy();
                     });
 
+                });
+
+                describe('isCorrectAttributeNameStartSymbol', function () {
+                    var isCorrectAttributeNameStartSymbol = htmlToASTExport.isCorrectAttributeNameStartSymbol;
+
+                    it('was exported', function () {
+                        expect(isCorrectAttributeNameStartSymbol).toBeDefined();
+                    });
+
+                    it('is isCorrectTagNameStartSymbol', function () {
+                        expect(isCorrectAttributeNameStartSymbol).toBe(htmlToASTExport.isCorrectTagNameStartSymbol);
+                    })
+                });
+
+                describe('isCorrectAttributeNameSymbol', function () {
+                    var isCorrectAttributeNameSymbol = htmlToASTExport.isCorrectAttributeNameSymbol;
+
+                    it('was exported', function () {
+                        expect(isCorrectAttributeNameSymbol).toBeDefined();
+                    });
+
+                    it('is isCorrectTagNameStartSymbol', function () {
+                        expect(isCorrectAttributeNameSymbol).toBe(htmlToASTExport.isCorrectTagNameSymbol);
+                    })
+                });
+
+                describe('addCharForBuffer', function () {
+                    var addCharForBuffer = htmlToASTExport.addCharForBuffer;
+
+                    it('was exported', function () {
+                        expect(addCharForBuffer).toBeDefined();
+                    });
+
+                    var contextOfParse = new ContextOfParse();
+
+                    addCharForBuffer(contextOfParse, ' ');
+                    addCharForBuffer(contextOfParse, '\n');
+                    addCharForBuffer(contextOfParse, ' ');
+                    addCharForBuffer(contextOfParse, '\r');
+                    addCharForBuffer(contextOfParse, '\r');
+                    addCharForBuffer(contextOfParse, 'a');
+
+                    it('contextOfParse.buffer correct', function () {
+                        expect(contextOfParse.buffer).toBe(' \n \r\ra');
+                    });
+
+                });
+
+                describe('clearForTextState', function () {
+                    var clearForTextState = htmlToASTExport.clearForTextState;
+
+                    it('was exported', function () {
+                        expect(clearForTextState).toBeDefined();
+                    });
+
+                    var contextOfParse = new ContextOfParse();
+                    contextOfParse.buffer = 'a<div class="asd"\\';
+                    contextOfParse.textBuffer = 'a';
+                    contextOfParse.tagName = 'div';
+                    contextOfParse.attributes = {
+                        'class': 'asd'
+                    };
+
+                    clearForTextState(contextOfParse);
+
+                    it('contextOfParse.buffer is correct', function () {
+                        expect(contextOfParse.buffer).toBe('a<div class="asd"\\');
+                    });
+
+                    it('contextOfParse.textBuffer is correct', function () {
+                        expect(contextOfParse.textBuffer).toBe('a<div class="asd"\\');
+                    });
+
+                    //TODO: [dmitry.makhnev] think about other properties
+
 
                 });
 
@@ -691,10 +766,6 @@ describe('DL.htmlToAST()', function () {
                             expect(contextOfParse.textBuffer).toBe('');
                         });
 
-                        it('contextOfParse.tagName is clean', function () {
-                            expect(contextOfParse.tagName).toBe('');
-                        });
-
                         it('correct contextOfParse.state', function () {
                             expect(contextOfParse.state).toBe(states.TEXT);
                         });
@@ -733,10 +804,6 @@ describe('DL.htmlToAST()', function () {
                             id: 'id'
                         };
                         buildTag(contextOfParse);
-
-                        it('contextOfParse.attributes is clean', function () {
-                            expect(contextOfParse.attributes).toBeNull();
-                        });
 
                         it('tag has correct attributes', function () {
                             var hrTag = contextOfParse.result.childNodes[1];
@@ -1029,9 +1096,6 @@ describe('DL.htmlToAST()', function () {
                                 it('contextOfParse.textBuffer is correct', function () {
                                     expect(contextOfParse.textBuffer).toBe('');
                                 });
-                                it('contextOfParse.textBuffer is correct', function () {
-                                    expect(contextOfParse.tagName).toBe('');
-                                });
 
                                 describe('textNode', function () {
                                     var textNode = contextOfParse.result.childNodes[0];
@@ -1082,9 +1146,6 @@ describe('DL.htmlToAST()', function () {
                                 });
                                 it('contextOfParse.textBuffer is correct', function () {
                                     expect(contextOfParse.textBuffer).toBe('');
-                                });
-                                it('contextOfParse.tagName is correct', function () {
-                                    expect(contextOfParse.tagName).toBe('');
                                 });
 
                                 describe('textNode', function () {
@@ -1173,6 +1234,228 @@ describe('DL.htmlToAST()', function () {
                     });
                 });
 
+                describe('processingTagBody', function () {
+                    var processingTagBody = processings.processingTagBody,
+                        processingText = processings.processingText,
+                        processingTagStart = processings.processingTagStart,
+                        processingTagName = processings.processingTagName;
+
+                    it('was exported', function () {
+                        expect(processingTagBody).toBeDefined();
+                    });
+
+                    describe('change state', function () {
+
+                        describe('to TEXT when incorrect tag body symbol', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, 'a');
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, 'd');
+                            processingTagName(contextOfParse, 'i');
+                            processingTagName(contextOfParse, 'v');
+                            processingTagName(contextOfParse, ' ');
+                            processingTagBody(contextOfParse, '\\');
+
+                            it('contextOfParse.state is TEXT', function () {
+                                expect(contextOfParse.state).toBe(states.TEXT);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('a<div \\');
+                            });
+
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('a<div \\');
+                            });
+
+                        });
+
+                        describe('to TEXT when symbol is \'>\'', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, 'a');
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, 'd');
+                            processingTagName(contextOfParse, 'i');
+                            processingTagName(contextOfParse, 'v');
+                            processingTagName(contextOfParse, '\t');
+                            processingTagBody(contextOfParse, '>');
+
+                            it('contextOfParse.state is TEXT', function () {
+                                expect(contextOfParse.state).toBe(states.TEXT);
+                            });
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('');
+                            });
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('');
+                            });
+
+                            describe('textNode', function () {
+                                var textNode = contextOfParse.result.childNodes[0];
+                                it('is define', function () {
+                                    expect(textNode).toBeDefined();
+                                });
+                                it('is TextNode', function () {
+                                    expect(textNode instanceof htmlToASTNodes.Text).toBeTruthy();
+                                });
+                                it('correct textNode.text', function () {
+                                    expect(textNode.text).toBe('a');
+                                });
+                            });
+
+                            describe('tag', function () {
+                                var tag = contextOfParse.result.childNodes[1];
+                                it('is define', function () {
+                                    expect(tag).toBeDefined();
+                                });
+                                it('is TextNode', function () {
+                                    expect(tag instanceof htmlToASTNodes.Tag).toBeTruthy();
+                                });
+                                it('correct textNode.text', function () {
+                                    expect(tag.name).toBe('div');
+                                });
+                                it('add to contextOfParse.treeStack', function () {
+                                    var treeStack = contextOfParse.treeStack,
+                                        contextOfParseResult = contextOfParse.result;
+                                    expect(treeStack.length).toBe(2);
+                                    expect(treeStack[0]).toBe(contextOfParseResult);
+                                    expect(treeStack[1]).toBe(contextOfParseResult.childNodes[1]);
+                                });
+                            });
+
+                        });
+
+                        describe('to TAG_CLOSE', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, 'a');
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, 'd');
+                            processingTagName(contextOfParse, 'i');
+                            processingTagName(contextOfParse, 'v');
+                            processingTagName(contextOfParse, '\r');
+                            processingTagBody(contextOfParse, '/');
+
+                            it('contextOfParse.state is TAG_CLOSE', function () {
+                                expect(contextOfParse.state).toBe(states.TAG_CLOSE);
+                            });
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('a<div\r/');
+                            });
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('a');
+                            });
+                            it('contextOfParse.tagName is correct', function () {
+                                expect(contextOfParse.tagName).toBe('div');
+                            });
+                        });
+
+                        describe('to TAG_ATTRIBUTE_NAME', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, 'a');
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, 'd');
+                            processingTagName(contextOfParse, 'i');
+                            processingTagName(contextOfParse, 'v');
+                            processingTagName(contextOfParse, ' ');
+                            processingTagBody(contextOfParse, '\n');
+                            processingTagBody(contextOfParse, 'a');
+
+                            it('contextOfParse.state is TAG_ATTRIBUTE_NAME', function () {
+                                expect(contextOfParse.state).toBe(states.TAG_ATTRIBUTE_NAME);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('a<div \na');
+                            });
+
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('a');
+                            });
+
+                            it('contextOfParse.tagName is correct', function () {
+                                expect(contextOfParse.tagName).toBe('div');
+                            });
+
+                            it('contextOfParse.attributeName is correct', function () {
+                                expect(contextOfParse.attributeName).toBe('a');
+                            });
+
+                        });
+
+                    });
+
+                });
+
+                describe('processingTagAttributeName', function () {
+                    var processingTagAttributeName = processings.processingTagAttributeName,
+                        processingTagBody = processings.processingTagBody,
+                        processingText = processings.processingText,
+                        processingTagStart = processings.processingTagStart,
+                        processingTagName = processings.processingTagName;
+
+                    it('was exported', function () {
+                        expect(processingTagAttributeName).toBeDefined();
+                    });
+
+                    describe('change state', function () {
+                        describe('to TEXT when incorrect symbol', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, 'a');
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, 'd');
+                            processingTagName(contextOfParse, 'i');
+                            processingTagName(contextOfParse, 'v');
+                            processingTagName(contextOfParse, ' ');
+                            processingTagBody(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, '\\');
+
+                            it('contextOfParse.state is TEXT', function () {
+                                expect(contextOfParse.state).toBe(states.TEXT);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('a<div a\\');
+                            });
+
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('a<div a\\');
+                            });
+                        });
+
+                        describe('to TAG_ATTRIBUTE_TO_VALUE', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, 'a');
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, 'd');
+                            processingTagName(contextOfParse, 'i');
+                            processingTagName(contextOfParse, 'v');
+                            processingTagName(contextOfParse, ' ');
+                            processingTagBody(contextOfParse, 'd');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, 't');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, '-');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, '=');
+
+                            it('contextOfParse.state is TAG_ATTRIBUTE_TO_VALUE', function () {
+                                expect(contextOfParse.state).toBe(states.TAG_ATTRIBUTE_TO_VALUE);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('a<div data-a=');
+                            });
+
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('a');
+                            });
+
+                            it('contextOfParse.attributeName is correct', function () {
+                                expect(contextOfParse.attributeName).toBe('data-a');
+                            });
+                        });
+                    });
+                });
 
                 describe('processingTagClose', function () {
                     var processingTagClose = processings.processingTagClose,
@@ -1204,11 +1487,6 @@ describe('DL.htmlToAST()', function () {
                             it('contextOfParse.textBuffer is correct', function () {
                                 expect(contextOfParse.textBuffer).toBe('a<st/ ');
                             });
-                            it('contextOfParse.tagName is correct', function () {
-                                expect(contextOfParse.tagName).toBe('');
-                            });
-                            //TODO: [dmitry.makhnev] expect clear attributes data
-
 
                         });
 
@@ -1230,9 +1508,6 @@ describe('DL.htmlToAST()', function () {
                             });
                             it('contextOfParse.textBuffer is correct', function () {
                                 expect(contextOfParse.textBuffer).toBe('');
-                            });
-                            it('contextOfParse.tagName is correct', function () {
-                                expect(contextOfParse.tagName).toBe('');
                             });
 
                             describe('textNode', function () {
@@ -1272,8 +1547,6 @@ describe('DL.htmlToAST()', function () {
 
 
                 });
-
-
 
 
             });
