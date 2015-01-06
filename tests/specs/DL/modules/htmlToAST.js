@@ -359,6 +359,10 @@ describe('DL.htmlToAST()', function () {
                         expect(contextOfParse.attributeName).toBe('');
                     });
 
+                    it('attributeValueSeparator', function () {
+                        expect(contextOfParse.attributeValueSeparator).toBe('');
+                    });
+
                     it('attributeValue', function () {
                         expect(contextOfParse.attributeValue).toBe('');
                     });
@@ -430,6 +434,9 @@ describe('DL.htmlToAST()', function () {
                         });
                         it('attributeValue', function () {
                             expect(contextOfParse.attributeValue).toBeNull();
+                        });
+                        it('attributeValueSeparator', function () {
+                            expect(contextOfParse.attributeValueSeparator).toBeNull();
                         });
                         it('attributes', function () {
                             expect(contextOfParse.attributes).toBeNull();
@@ -1452,6 +1459,121 @@ describe('DL.htmlToAST()', function () {
 
                             it('contextOfParse.attributeName is correct', function () {
                                 expect(contextOfParse.attributeName).toBe('data-a');
+                            });
+                        });
+                    });
+                });
+
+                describe('processingTagAttributeToValue', function () {
+                    var processingTagAttributeToValue = processings.processingTagAttributeToValue,
+                        processingTagAttributeName = processings.processingTagAttributeName,
+                        processingTagBody = processings.processingTagBody,
+                        processingText = processings.processingText,
+                        processingTagStart = processings.processingTagStart,
+                        processingTagName = processings.processingTagName;
+
+                    it('was exported', function () {
+                        expect(processingTagAttributeToValue).toBeDefined();
+                    });
+
+                    describe('change state', function () {
+                        describe('to TEXT when incorrect symbol', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, 'a');
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, 'd');
+                            processingTagName(contextOfParse, 'i');
+                            processingTagName(contextOfParse, 'v');
+                            processingTagName(contextOfParse, ' ');
+                            processingTagBody(contextOfParse, 'd');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, 't');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, '=');
+                            processingTagAttributeToValue(contextOfParse, '|');
+
+                            it('contextOfParse.state is TEXT', function () {
+                                expect(contextOfParse.state).toBe(states.TEXT);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('a<div data=|');
+                            });
+
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('a<div data=|');
+                            });
+                        });
+
+                        describe('to TAG_ATTRIBUTE_VALUE_START for \'\'\'', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, 'a');
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, 'd');
+                            processingTagName(contextOfParse, 'i');
+                            processingTagName(contextOfParse, 'v');
+                            processingTagName(contextOfParse, ' ');
+                            processingTagBody(contextOfParse, 'd');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, 't');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, '=');
+                            processingTagAttributeToValue(contextOfParse, '\'');
+
+                            it('contextOfParse.state is TAG_ATTRIBUTE_TO_VALUE', function () {
+                                expect(contextOfParse.state).toBe(states.TAG_ATTRIBUTE_VALUE_START);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('a<div data=\'');
+                            });
+
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('a');
+                            });
+
+                            it('contextOfParse.attributeName is correct', function () {
+                                expect(contextOfParse.attributeName).toBe('data');
+                            });
+
+                            it('contextOfParse.attributeValueSeparator is correct', function () {
+                                expect(contextOfParse.attributeValueSeparator).toBe('\'');
+                            });
+                        });
+
+                        describe('to TAG_ATTRIBUTE_VALUE_START for \'"\'', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, 'a');
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, 'd');
+                            processingTagName(contextOfParse, 'i');
+                            processingTagName(contextOfParse, 'v');
+                            processingTagName(contextOfParse, ' ');
+                            processingTagBody(contextOfParse, 'd');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, 't');
+                            processingTagAttributeName(contextOfParse, 'a');
+                            processingTagAttributeName(contextOfParse, '=');
+                            processingTagAttributeToValue(contextOfParse, '"');
+
+                            it('contextOfParse.state is TAG_ATTRIBUTE_TO_VALUE', function () {
+                                expect(contextOfParse.state).toBe(states.TAG_ATTRIBUTE_VALUE_START);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('a<div data="');
+                            });
+
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('a');
+                            });
+
+                            it('contextOfParse.attributeName is correct', function () {
+                                expect(contextOfParse.attributeName).toBe('data');
+                            });
+
+                            it('contextOfParse.attributeValueSeparator is correct', function () {
+                                expect(contextOfParse.attributeValueSeparator).toBe('"');
                             });
                         });
                     });

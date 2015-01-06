@@ -129,7 +129,7 @@
 
             TAG_ATTRIBUTE_NAME = stateId++,
             TAG_ATTRIBUTE_TO_VALUE = stateId++,
-            TAG_ATTRIBUTE_VALUE_STAR = stateId++,
+            TAG_ATTRIBUTE_VALUE_START = stateId++,
             TAG_ATTRIBUTE_VALUE = stateId++,
             TAG_ATTRIBUTE_VALUE_END = stateId++,
 
@@ -147,7 +147,7 @@
 
             TAG_ATTRIBUTE_NAME: TAG_ATTRIBUTE_NAME,
             TAG_ATTRIBUTE_TO_VALUE: TAG_ATTRIBUTE_TO_VALUE,
-            TAG_ATTRIBUTE_VALUE_STAR: TAG_ATTRIBUTE_VALUE_STAR,
+            TAG_ATTRIBUTE_VALUE_START: TAG_ATTRIBUTE_VALUE_START,
             TAG_ATTRIBUTE_VALUE: TAG_ATTRIBUTE_VALUE,
             TAG_ATTRIBUTE_VALUE_END: TAG_ATTRIBUTE_VALUE_END,
 
@@ -185,6 +185,7 @@
             contextOfParse.tagName = '';
 
             contextOfParse.attributeName = '';
+            contextOfParse.attributeValueSeparator = '';
             contextOfParse.attributeValue = '';
 
             contextOfParse.attributes = null;
@@ -207,6 +208,7 @@
             contextOfParse.textBuffer = null;
             contextOfParse.tagName = null;
             contextOfParse.attributeName = null;
+            contextOfParse.attributeValueSeparator = null;
             contextOfParse.attributeValue = null;
             contextOfParse.attributes = null;
         };
@@ -494,6 +496,11 @@
         DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagBody = processingTagBody;
         /*@/DTesting.exports*/
 
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
         function processingTagAttributeName (contextOfParse, char) {
             addCharForBuffer(contextOfParse, char);
             if (char === '=') {
@@ -507,6 +514,29 @@
 
         /*@DTesting.exports*/
         DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagAttributeName = processingTagAttributeName;
+        /*@/DTesting.exports*/
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
+        function processingTagAttributeToValue (contextOfParse, char) {
+            addCharForBuffer(contextOfParse, char);
+
+            switch (char) {
+                case '\'':
+                case '"':
+                    contextOfParse.state = TAG_ATTRIBUTE_VALUE_START;
+                    contextOfParse.attributeValueSeparator = char;
+                    break;
+                default:
+                    clearForTextState(contextOfParse);
+            }
+        }
+
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagAttributeToValue = processingTagAttributeToValue;
         /*@/DTesting.exports*/
 
         /**
