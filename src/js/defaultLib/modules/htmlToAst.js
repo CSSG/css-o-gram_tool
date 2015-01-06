@@ -147,11 +147,69 @@
         // /states
         //
 
+        //
+        // ContextOfParse
+        //
+        /**
+         *
+         * @param {object} settings
+         * @constructor
+         */
+        function ContextOfParse (settings) {
+            var contextOfParse = this,
+                root = new nodes.Fragment(),
+                isXMLMode = false;
+
+            contextOfParse.treeStack = [root];
+            contextOfParse.result = root;
+
+            contextOfParse.state = TEXT;
+
+            contextOfParse.buffer = '';
+
+            contextOfParse.textBuffer = '';
+
+            contextOfParse.tagName = '';
+
+            contextOfParse.attributeName = '';
+            contextOfParse.attributeValue = '';
+
+            contextOfParse.attributes = null;
+
+            if (settings) {
+                if (settings.isXML) {
+                    isXMLMode = true;
+                }
+            }
+
+            contextOfParse.isXMLMode = isXMLMode;
+        }
+
+        ContextOfParse.destructor = function () {
+            var contextOfParse = this;
+            contextOfParse.treeStack = null;
+            contextOfParse.result = null;
+            contextOfParse.state = null;
+            contextOfParse.buffer = null;
+            contextOfParse.textBuffer = null;
+            contextOfParse.tagName = null;
+            contextOfParse.attributeName = null;
+            contextOfParse.attributeValue = null;
+            contextOfParse.attributes = null;
+        };
+
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST').ContextOfParse = ContextOfParse;
+        /*@/DTesting.exports*/
+
+        //
+        // /ContextOfParse
+        //
+
 
         //
         // microhelpers
         //
-
 
         var letterTestRegExp = /[A-Za-z]/;
         function isCorrectTagNameStartSymbol (char) {
@@ -190,6 +248,10 @@
          *
          * @param {ContextOfParse} contextOfParse
          */
+
+        var tagsWithoutNesting = ['img', 'input', 'br', 'link', 'meta',  'hr', 'col', 'param', 'source', 'track', 'menuitem', 'keygen', 'area', 'base', 'basefont'];
+        ['option'];
+
         function buildText (contextOfParse) {
             var contextOfParseTreeStack = contextOfParse.treeStack,
                 newText = new nodes.Text(contextOfParse.textBuffer);
@@ -222,7 +284,6 @@
         testingExportsBuilders.buildText = buildText;
         testingExportsBuilders.buildTag = buildTag;
 
-
         /*@/DTesting.exports*/
 
         //
@@ -230,44 +291,6 @@
         //
 
 
-
-        function ContextOfParse () {
-            var contextOfParse = this,
-                root = new nodes.Fragment();
-
-            contextOfParse.treeStack = [root];
-            contextOfParse.result = root;
-
-            contextOfParse.state = TEXT;
-
-            contextOfParse.buffer = '';
-
-            contextOfParse.textBuffer = '';
-
-            contextOfParse.tagName = '';
-
-            contextOfParse.attributeName = '';
-            contextOfParse.attributeValue = '';
-
-            contextOfParse.attributes = null;
-        }
-
-        ContextOfParse.destructor = function () {
-            var contextOfParse = this;
-            contextOfParse.treeStack = null;
-            contextOfParse.result = null;
-            contextOfParse.state = null;
-            contextOfParse.buffer = null;
-            contextOfParse.textBuffer = null;
-            contextOfParse.tagName = null;
-            contextOfParse.attributeName = null;
-            contextOfParse.attributeValue = null;
-            contextOfParse.attributes = null;
-        };
-
-        /*@DTesting.exports*/
-        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST').ContextOfParse = ContextOfParse;
-        /*@/DTesting.exports*/
 
         //
         // processings
@@ -325,6 +348,8 @@
                         contextOfParse.state = TAG_CLOSE;
                         break;
                     case '>':
+                        contextOfParse.state = TEXT;
+                        buildTag(contextOfParse);
                         break;
                     default:
                         contextOfParse.state = TEXT;

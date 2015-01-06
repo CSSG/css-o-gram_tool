@@ -1,4 +1,4 @@
-describe('white space detect', function () {
+describe('research: white space detect', function () {
     function isWhiteSpaceByChars (char) {
         return (char === ' ')
             || (char === '\n')
