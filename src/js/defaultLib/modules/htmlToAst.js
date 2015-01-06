@@ -153,6 +153,7 @@
         /**
          *
          * @param {object} [settings]
+         *     @param {Boolean} [settings.isXML] XML mode flag
          * @constructor
          */
         function ContextOfParse (settings) {
@@ -212,18 +213,47 @@
         //
 
         var letterTestRegExp = /[A-Za-z]/;
+
+        /**
+         *
+         * @param {String} char
+         * @return {boolean}
+         */
         function isCorrectTagNameStartSymbol (char) {
             return letterTestRegExp.test(char);
         }
 
         var tagNameCorrectSymbolRegExp = /\w|-/;
+
+        /**
+         *
+         * @param {String} char
+         * @return {boolean}
+         */
         function isCorrectTagNameSymbol (char) {
             return tagNameCorrectSymbolRegExp.test(char);
         }
 
         var whiteSpaceRegExp = /\s/;
+
+        /**
+         *
+         * @param {String} char
+         * @return {boolean}
+         */
         function isWhiteSpace (char) {
             return whiteSpaceRegExp.test(char);
+        }
+
+        //var tagsWithoutNesting = ['img', 'input', 'br', 'link', 'meta',  'hr', 'col', 'param', 'source', 'track', 'menuitem', 'keygen', 'area', 'base', 'basefont', 'option'];
+        var simpleHTMLTags = ['img', 'input', 'br', 'hr', 'link', 'meta'];
+        /**
+         *
+         * @param {String} tagName
+         * @return {Boolean}
+         */
+        function testOfSimpleHTMLTag(tagName) {
+            return simpleHTMLTags.indexOf(tagName) !== -1;
         }
 
         /*@DTesting.exports*/
@@ -232,6 +262,7 @@
         testingExportsForMicrohelpers.isCorrectTagNameStartSymbol = isCorrectTagNameStartSymbol;
         testingExportsForMicrohelpers.isCorrectTagNameSymbol = isCorrectTagNameSymbol;
         testingExportsForMicrohelpers.isWhiteSpace = isWhiteSpace;
+        testingExportsForMicrohelpers.testOfSimpleHTMLTag = testOfSimpleHTMLTag;
 
         /*@/DTesting.exports*/
 
@@ -248,10 +279,6 @@
          *
          * @param {ContextOfParse} contextOfParse
          */
-
-        var tagsWithoutNesting = ['img', 'input', 'br', 'link', 'meta',  'hr', 'col', 'param', 'source', 'track', 'menuitem', 'keygen', 'area', 'base', 'basefont'];
-        ['option'];
-
         function buildText (contextOfParse) {
             var contextOfParseTreeStack = contextOfParse.treeStack,
                 newText = new nodes.Text(contextOfParse.textBuffer);
@@ -264,17 +291,29 @@
         /**
          *
          * @param {ContextOfParse} contextOfParse
+         * @param {Boolean} [isClosedTag]
          */
-        function buildTag (contextOfParse) {
+        function buildTag (contextOfParse , isClosedTag) {
             var contextOfParseTreeStack = contextOfParse.treeStack,
-                newTag;
+                newTag,
+                tagName = contextOfParse.tagName;
+
             if (contextOfParse.textBuffer) {
                 buildText(contextOfParse);
             }
-            newTag = new nodes.Tag(contextOfParse.tagName, contextOfParse.attributes);
+
+            newTag = new nodes.Tag(tagName, contextOfParse.attributes);
             contextOfParse.tagName = '';
             contextOfParse.attributes = null;
+
             helpers.appendChild(contextOfParseTreeStack[contextOfParseTreeStack.length - 1], newTag);
+
+            if (
+                !isClosedTag
+                && (contextOfParse.isXMLMode || !testOfSimpleHTMLTag(tagName))
+            ) {
+                contextOfParseTreeStack.push(newTag);
+            }
 
         }
 
@@ -296,7 +335,11 @@
         // processings
         //
 
-
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
         function processingText (contextOfParse, char) {
             contextOfParse.buffer += char;
             switch (char) {
@@ -312,6 +355,11 @@
         DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingText = processingText;
         /*@/DTesting.exports*/
 
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
         function processingTagStart (contextOfParse, char) {
             contextOfParse.buffer += char;
 
@@ -335,6 +383,11 @@
         DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagStart = processingTagStart;
         /*@/DTesting.exports*/
 
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
         function processingTagName (contextOfParse, char) {
             contextOfParse.buffer += char;
 
@@ -363,12 +416,37 @@
         DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagName = processingTagName;
         /*@/DTesting.exports*/
 
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
         function processingTagBody (contextOfParse, char) {
 
         }
 
         /*@DTesting.exports*/
         DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagBody = processingTagBody;
+        /*@/DTesting.exports*/
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
+        function processingTagClose (contextOfParse, char) {
+            if (char === '>') {
+                buildTag(contextOfParse, true);
+            } else {
+                contextOfParse.state = TEXT;
+                contextOfParse.buffer += char;
+                contextOfParse.textBuffer = contextOfParse.buffer;
+                contextOfParse.tagName = '';
+            }
+        }
+
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagClose = processingTagClose;
         /*@/DTesting.exports*/
 
         //
@@ -385,6 +463,7 @@
         function parse (html) {
             var contextOfParse = new ContextOfParse();
 
+            //TODO: [dmitry.makhnev] write native cycle
             defaultLib.cycle(html, function (char) {
                 switch (contextOfParse.state) {
                     case TEXT:
@@ -399,7 +478,9 @@
                     case TAG_BODY:
                         processingTagBody(contextOfParse, char);
                         break;
-
+                    case TAG_CLOSE:
+                        processingTagClose(contextOfParse, char);
+                        break;
 
                 }
             });
