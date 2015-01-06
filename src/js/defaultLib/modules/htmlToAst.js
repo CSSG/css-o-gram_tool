@@ -599,6 +599,35 @@
          * @param {ContextOfParse} contextOfParse
          * @param {String} char
          */
+        function processingAttributeValueEnd (contextOfParse, char) {
+            addCharForBuffer(contextOfParse, char);
+
+            switch (char){
+                case '/':
+                    contextOfParse.state = TAG_CLOSE;
+                    break;
+                case '>':
+                    buildTag(contextOfParse);
+                    clearForTextState(contextOfParse);
+                    break;
+                default:
+                    if (isWhiteSpace(char)) {
+                        contextOfParse.state = TAG_BODY;
+                    } else {
+                        clearForTextState(contextOfParse);
+                    }
+            }
+        }
+
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingAttributeValueEnd = processingAttributeValueEnd;
+        /*@/DTesting.exports*/
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
         function processingTagClose (contextOfParse, char) {
             if (char === '>') {
                 buildTag(contextOfParse, true);
@@ -643,6 +672,12 @@
                         break;
                     case TAG_ATTRIBUTE_NAME:
                         processingTagAttributeName(contextOfParse, char);
+                        break;
+                    case TAG_ATTRIBUTE_TO_VALUE:
+                        processingTagAttributeToValue(contextOfParse, char);
+                        break;
+                    case TAG_ATTRIBUTE_VALUE:
+                        processingTagAttributeValue(contextOfParse, char);
                         break;
                     case TAG_CLOSE:
                         processingTagClose(contextOfParse, char);
