@@ -1,16 +1,18 @@
-describe('DL.htmlToAST()', function () {
+describe('DL.htmlToAST', function () {
+
+    var htmlToAST = DL.htmlToAST;
 
     describe('correct define', function () {
-        it('module defined', function () {
-            expect(DL.htmlToAST).toBeDefined();
-        });
+        describe('module', function () {
+            it('is defined', function () {
+                expect(htmlToAST).toBeDefined();
+            });
 
-        it('module is Object', function () {
-            expect(DL.htmlToAST).toEqual(jasmine.any(Object));
+            it('is Object', function () {
+                expect(htmlToAST).toEqual(jasmine.any(Object));
+            });
         });
-
-        describe('parts', function () {
-            var htmlToAST = DL.htmlToAST;
+        describe('module parts', function () {
 
             it('parse is define', function () {
                 expect(htmlToAST.parse).toBeDefined();
@@ -29,48 +31,6 @@ describe('DL.htmlToAST()', function () {
                 expect(htmlToAST.nodes).toEqual(jasmine.any(Object));
             });
 
-
-            describe('nodes', function () {
-                var htmlToASTNodes = htmlToAST.nodes;
-
-                it('Fragment is define', function () {
-                    expect(htmlToASTNodes.Fragment).toBeDefined();
-                });
-
-                it('Fragment is constructor', function () {
-                    expect(htmlToASTNodes.Fragment).toEqual(jasmine.any(Function));
-                });
-
-
-                it('Tag is define', function () {
-                    expect(htmlToASTNodes.Tag).toBeDefined();
-                });
-
-                it('Tag is constructor', function () {
-                    expect(htmlToASTNodes.Tag).toEqual(jasmine.any(Function));
-                });
-
-
-                it('Text is define', function () {
-                    expect(htmlToASTNodes.Text).toBeDefined();
-                });
-
-                it('Text is constructor', function () {
-                    expect(htmlToASTNodes.Text).toEqual(jasmine.any(Function));
-                });
-
-
-                it('Comment is define', function () {
-                    expect(htmlToASTNodes.Comment).toBeDefined();
-                });
-
-                it('Comment is constructor', function () {
-                    expect(htmlToASTNodes.Comment).toEqual(jasmine.any(Function));
-                });
-
-            });
-
-
             it('helpers is define', function () {
                 expect(htmlToAST.helpers).toBeDefined();
             });
@@ -78,35 +38,23 @@ describe('DL.htmlToAST()', function () {
             it('helpers is object', function () {
                 expect(htmlToAST.helpers).toEqual(jasmine.any(Object));
             });
-
-
-            describe('helpers', function () {
-                var helpers = htmlToAST.helpers;
-
-                it('appendChild is defined', function () {
-                    expect(helpers.appendChild).toBeDefined();
-                });
-
-                it('appendChild is function', function () {
-                    expect(helpers.appendChild).toBeDefined();
-                });
-
-            });
-
         });
 
 
     });
 
-    var htmlToAST = DL.htmlToAST,
-        htmlToASTNodes = htmlToAST.nodes,
+    var htmlToASTNodes = htmlToAST.nodes,
         htmlToASTHelpers = htmlToAST.helpers;
 
     describe('nodes instances construct and api', function () {
 
         describe('Fragment', function () {
 
-            it('construct', function () {
+            it('is define', function () {
+                expect(htmlToASTNodes.Fragment).toBeDefined();
+            });
+
+            it('is constructor', function () {
                 var fragment = new htmlToASTNodes.Fragment();
                 expect(fragment).toEqual(jasmine.any(Object));
             });
@@ -134,7 +82,11 @@ describe('DL.htmlToAST()', function () {
 
         describe('Tag', function () {
 
-            it('construct', function () {
+            it('is define', function () {
+                expect(htmlToASTNodes.Tag).toBeDefined();
+            });
+
+            it('is constructor', function () {
                 var tag = new htmlToASTNodes.Tag('div', {'class': 'block'});
                 expect(tag).toEqual(jasmine.any(Object));
             });
@@ -172,12 +124,24 @@ describe('DL.htmlToAST()', function () {
             it('attributes is Object', function () {
                 expect(tag.attributes).toEqual(jasmine.any(Object));
             });
+
+            it('parentNode is define', function () {
+                expect(tag.parentNode).toBeDefined();
+            });
+
+            it('parentNode is null', function () {
+                expect(tag.parentNode).toBeNull();
+            });
         });
 
 
         describe('Text', function () {
 
-            it('construct', function () {
+            it('is define', function () {
+                expect(htmlToASTNodes.Text).toBeDefined();
+            });
+
+            it('is constructor', function () {
                 var text = new htmlToASTNodes.Text('text content');
                 expect(text).toEqual(jasmine.any(Object));
             });
@@ -200,12 +164,24 @@ describe('DL.htmlToAST()', function () {
                 expect(text.text).toBe('text content');
             });
 
+            it('parentNode is define', function () {
+                expect(text.parentNode).toBeDefined();
+            });
+
+            it('parentNode is null', function () {
+                expect(text.parentNode).toBeNull();
+            });
+
         });
 
 
         describe('Comment', function () {
 
-            it('construct', function () {
+            it('is define', function () {
+                expect(htmlToASTNodes.Comment).toBeDefined();
+            });
+
+            it('is constructor', function () {
                 var comment = new htmlToASTNodes.Comment('comment text');
                 expect(comment).toEqual(jasmine.any(Object));
             });
@@ -228,16 +204,145 @@ describe('DL.htmlToAST()', function () {
                 expect(comment.text).toBe('comment text');
             });
 
+            it('parentNode is define', function () {
+                expect(comment.parentNode).toBeDefined();
+            });
+
+            it('parentNode is null', function () {
+                expect(comment.parentNode).toBeNull();
+            });
+
         });
 
     });
 
     describe('helpers api', function () {
-        it('appendChild() div into fragment', function () {
-            var fragment = new htmlToASTNodes.Fragment(),
-                div = new htmlToASTNodes.Tag('div', {'class': 'block'});
-            htmlToASTHelpers.appendChild(fragment, div);
-            expect(fragment.childNodes[0]).toBe(div);
+        var helpers = htmlToAST.helpers;
+
+        describe('appendChild()', function () {
+            it('is defined', function () {
+                expect(helpers.appendChild).toBeDefined();
+            });
+
+            it('is function', function () {
+                expect(helpers.appendChild).toEqual(jasmine.any(Function));
+            });
+
+            describe('appendChild() div into fragment', function () {
+                var fragment = new htmlToASTNodes.Fragment(),
+                    div = new htmlToASTNodes.Tag('div', {'class': 'block'});
+
+                htmlToASTHelpers.appendChild(fragment, div);
+                it('correct div position', function () {
+                    expect(fragment.childNodes[0]).toBe(div);
+                });
+                it('div.parentNode is fragment', function () {
+                    expect(div.parentNode).toBe(fragment);
+                });
+
+            });
+
+            describe('appendChild() reappend div', function () {
+                var div = new htmlToASTNodes.Tag('div'),
+                    div2 = new htmlToASTNodes.Tag('div'),
+                    fragment = new htmlToASTNodes.Fragment();
+
+                htmlToASTHelpers.appendChild(div2, div);
+                htmlToASTHelpers.appendChild(fragment, div);
+
+                it('div correct parent node', function () {
+                    expect(div.parentNode).toBe(fragment);
+                });
+
+                it('div2.childNodes is correct', function () {
+                    expect(div2.childNodes.length).toBe(0);
+                });
+
+            });
+
+            describe('appendChild() for fragment', function () {
+                var div = new htmlToASTNodes.Tag('div'),
+                    div2 = new htmlToASTNodes.Tag('div'),
+                    div3 = new htmlToASTNodes.Tag('div'),
+                    fragment = new htmlToASTNodes.Fragment();
+
+                htmlToASTHelpers.appendChild(fragment, div2);
+                htmlToASTHelpers.appendChild(fragment, div3);
+                htmlToASTHelpers.appendChild(div, fragment);
+
+                it('div.childNodes length is correct', function () {
+                    expect(div.childNodes.length).toBe(2);
+                });
+
+                it('div2.parentNode is div', function () {
+                    expect(div2.parentNode).toBe(div);
+                });
+
+                it('div3.parentNode is div', function () {
+                    expect(div3.parentNode).toBe(div);
+                });
+
+                it('fragment.childNodes is empty', function () {
+                    expect(fragment.childNodes.length).toBe(0);
+                });
+            });
+
+        });
+
+        describe('removeChild()', function () {
+
+            it('is define', function () {
+                expect(htmlToASTHelpers.removeChild).toBeDefined();
+            });
+            it('is function', function () {
+                expect(htmlToASTHelpers.removeChild).toEqual(jasmine.any(Function));
+            });
+
+            describe('simple remove', function () {
+                var div = new htmlToASTNodes.Tag('div'),
+                    div2 = new htmlToASTNodes.Tag('div');
+
+                htmlToASTHelpers.appendChild(div, div2);
+                htmlToASTHelpers.removeChild(div, div2);
+
+                it('div.childNodes is empty', function () {
+                    expect(div.childNodes.length).toBe(0);
+                });
+
+                it('div2.parentNode is null', function () {
+                    expect(div2.parentNode).toBeNull();
+                });
+            });
+
+            describe('remove second of three nodes', function () {
+                var div = new htmlToASTNodes.Tag('div'),
+                    div1 = new htmlToASTNodes.Tag('div'),
+                    div2 = new htmlToASTNodes.Tag('div'),
+                    div3 = new htmlToASTNodes.Tag('div');
+
+                htmlToASTHelpers.appendChild(div, div1);
+                htmlToASTHelpers.appendChild(div, div2);
+                htmlToASTHelpers.appendChild(div, div3);
+                htmlToASTHelpers.removeChild(div, div2);
+
+                it('div.childNodes length is 2', function () {
+                    expect(div.childNodes.length).toBe(2);
+                });
+
+                it('div.childNodes[0] is div1', function () {
+                    expect(div.childNodes[0]).toBe(div1);
+                });
+
+                it('div.childNodes[1] is div3', function () {
+                    expect(div.childNodes[1]).toBe(div3);
+                });
+
+                it('div2.parentNode is null', function () {
+                    expect(div2.parentNode).toBeNull();
+                });
+
+            });
+
         });
     });
 
@@ -534,32 +639,62 @@ describe('DL.htmlToAST()', function () {
 
                 });
 
-                describe('testOfSimpleHTMLTag', function () {
-                    var testOfSimpleHTMLTag = htmlToASTExport.testOfSimpleHTMLTag;
+                describe('isSingletonHTMLTag', function () {
+                    var isSingletonHTMLTag = htmlToASTExport.isSingletonHTMLTag;
 
                     it('was exported', function () {
-                        expect(testOfSimpleHTMLTag).toBeDefined();
+                        expect(isSingletonHTMLTag).toBeDefined();
                     });
 
-                    it('<img> is simple tag', function () {
-                        expect(testOfSimpleHTMLTag('img')).toBeTruthy();
+                    it('<img> is singleton tag', function () {
+                        expect(isSingletonHTMLTag('img')).toBeTruthy();
                     });
-                    it('<input> is simple tag', function () {
-                        expect(testOfSimpleHTMLTag('input')).toBeTruthy();
+                    it('<input> is singleton tag', function () {
+                        expect(isSingletonHTMLTag('input')).toBeTruthy();
                     });
-                    it('<br> is simple tag', function () {
-                        expect(testOfSimpleHTMLTag('br')).toBeTruthy();
+                    it('<br> is singleton tag', function () {
+                        expect(isSingletonHTMLTag('br')).toBeTruthy();
                     });
-                    it('<hr> is simple tag', function () {
-                        expect(testOfSimpleHTMLTag('hr')).toBeTruthy();
+                    it('<hr> is singleton tag', function () {
+                        expect(isSingletonHTMLTag('hr')).toBeTruthy();
                     });
-                    it('<link> is simple tag', function () {
-                        expect(testOfSimpleHTMLTag('link')).toBeTruthy();
+                    it('<link> is singleton tag', function () {
+                        expect(isSingletonHTMLTag('link')).toBeTruthy();
                     });
-                    it('<meta> is simple tag', function () {
-                        expect(testOfSimpleHTMLTag('meta')).toBeTruthy();
+                    it('<meta> is singleton tag', function () {
+                        expect(isSingletonHTMLTag('meta')).toBeTruthy();
+                    });
+                    it('<source> is singleton tag', function () {
+                        expect(isSingletonHTMLTag('source')).toBeTruthy();
+                    });
+                    it('<area> is singleton tag', function () {
+                        expect(isSingletonHTMLTag('area')).toBeTruthy();
+                    });
+                    it('<embed> is singleton tag', function () {
+                        expect(isSingletonHTMLTag('embed')).toBeTruthy();
+                    });
+                    it('<param> is singleton tag', function () {
+                        expect(isSingletonHTMLTag('param')).toBeTruthy();
+                    });
+                    it('<base> is singleton tag', function () {
+                        expect(isSingletonHTMLTag('base')).toBeTruthy();
+                    });
+                    it('<col> is singleton tag', function () {
+                        expect(isSingletonHTMLTag('col')).toBeTruthy();
+                    });
+                    it('<command> is singleton tag', function () {
+                        expect(isSingletonHTMLTag('command')).toBeTruthy();
                     });
 
+                    it('<div> is not singleton tag', function () {
+                        expect(isSingletonHTMLTag('div')).toBeFalsy();
+                    });
+                    it('<span> is not singleton tag', function () {
+                        expect(isSingletonHTMLTag('span')).toBeFalsy();
+                    });
+                    it('<ul> is not singleton tag', function () {
+                        expect(isSingletonHTMLTag('ul')).toBeFalsy();
+                    });
                 });
 
                 describe('isCorrectAttributeNameStartSymbol', function () {
@@ -2698,10 +2833,70 @@ describe('DL.htmlToAST()', function () {
                 defaultDivTests(div2);
             });
 
-        })
+        });
+
+        describe('<select> with not closed <option>', function () {
+            var ast = htmlToAST.parse('<select><option value="1">hello<option value="2"><option value="3"></select>');
+            var select = ast.childNodes[0];
+            describe('select', function () {
+                it('is define', function () {
+                expect(select).toBeDefined();
+                });
+                it('has correct tag name', function () {
+                    expect(select.name).toBe('select');
+                });
+                it('select.childNodes.length is 3', function () {
+                    expect(select.childNodes.length).toBe(3);
+                });
+            });
+
+            describe('option 1', function () {
+                var option1 = select.childNodes[0];
+                it('is define', function () {
+                    expect(option1).toBeDefined()
+                });
+                it('has correct tag name', function () {
+                    expect(option1.name).toBe('option');
+                });
+                it('has correct attribute', function () {
+                    expect(option1.attributes.value).toBe('1');
+                });
+                it('has not child', function () {
+                    expect(option1.childNodes.length).toBe(1);
+                });
+            });
+
+            describe('option 2', function () {
+                var option2 = select.childNodes[1];
+                it('is define', function () {
+                    expect(option2).toBeDefined()
+                });
+                it('has correct tag name', function () {
+                    expect(option2.name).toBe('option');
+                });
+                it('has correct attribute', function () {
+                    expect(option2.attributes.value).toBe('2');
+                });
+            });
+
+            describe('option 3', function () {
+                var option3 = select.childNodes[2];
+                it('is define', function () {
+                    expect(option3).toBeDefined()
+                });
+                it('has correct tag name', function () {
+                    expect(option3.name).toBe('option');
+                });
+                it('has correct attribute', function () {
+                    expect(option3.attributes.value).toBe('3');
+                });
+
+            });
+
+
+
+        });
 
     });
-
-
 
 });

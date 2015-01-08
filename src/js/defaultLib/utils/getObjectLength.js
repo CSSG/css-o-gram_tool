@@ -7,14 +7,6 @@
      * @return {Number}
      */
     DL.getObjectLength = function (object) {
-        var result;
-        if (Object.keys) {
-            result = Object.keys(object).length;
-        } else {
-            DL.cycle(object, function () {
-                result += 1;
-            });
-        }
-        return result;
+        return DL.getObjectKeys(object).length;
     }
 } (this));

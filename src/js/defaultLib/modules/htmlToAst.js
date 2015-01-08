@@ -39,6 +39,7 @@
             tag.childNodes = [];
             tag.name = name;
             tag.attributes = attributes || {};
+            tag.parentNode = null;
         }
 
         htmlToAST.nodes.Tag = Tag;
@@ -53,6 +54,7 @@
             var text = this;
             text.type = 'text';
             text.text = textContent;
+            text.parentNode = null;
 
         }
 
@@ -68,6 +70,7 @@
             var comment = this;
             comment.type = 'comment';
             comment.text = commentContent;
+            comment.parentNode = null;
         }
 
         htmlToAST.nodes.Comment = Comment;
@@ -90,15 +93,49 @@
     // appendChild()
     //
     (function () {
+        var htmlToASTNodes = htmlToAST.nodes;
         /**
          *
-         * @param {ASTNode} nodeTo
-         * @param {ASTNode} node
+         * @param {Fragment|Tag|Text|Comment} nodeTo
+         * @param {Fragment|Tag|Text|Comment} node
          */
         htmlToAST.helpers.appendChild = function (nodeTo, node) {
-            nodeTo.childNodes.push(node);
+            if (node instanceof htmlToASTNodes.Fragment) {
+                defaultLib.cycle(node.childNodes, function (fragmentChildNode) {
+                    fragmentChildNode.parentNode = nodeTo;
+                    nodeTo.childNodes.push(fragmentChildNode);
+                });
+                node.childNodes.length = 0;
+            } else {
+                if (node.parentNode) {
+                    htmlToAST.helpers.removeChild(node.parentNode, node);
+                }
+                node.parentNode = nodeTo;
+                nodeTo.childNodes.push(node);
+            }
+
+
         };
     } ());
+
+    //
+    // removeChild()
+    //
+    (function () {
+        /**
+         *
+         * @param {Fragment|Tag|Text|Comment} parent
+         * @param {Fragment|Tag|Text|Comment} node
+         */
+        htmlToAST.helpers.removeChild = function (parent, node) {
+            if (node.parentNode === parent) {
+                parent.childNodes.splice(parent.childNodes.indexOf(node), 1);
+                node.parentNode = null;
+            }
+        };
+    } ());
+
+
 
     /*
      * /helpers
@@ -267,22 +304,19 @@
             return whiteSpaceRegExp.test(char);
         }
 
-
-        //var tagsWithoutNesting = ['img', 'input', 'br', 'link', 'meta',  'hr', 'col', 'param', 'source', 'track', 'menuitem', 'keygen', 'area', 'base', 'basefont', 'option'];
-        var simpleHTMLTags = ['img', 'input', 'br', 'hr', 'link', 'meta'];
+        var singletonHTMLTags = ['img', 'input', 'br', 'hr', 'link', 'meta', 'source', 'area', 'embed', 'param', 'base', 'col', 'command'];
 
         /**
          *
          * @param {String} tagName
          * @return {Boolean}
          */
-        function testOfSimpleHTMLTag(tagName) {
-            return simpleHTMLTags.indexOf(tagName) !== -1;
+        function isSingletonHTMLTag(tagName) {
+            return singletonHTMLTags.indexOf(tagName) !== -1;
         }
 
 
         var isCorrectAttributeNameStartSymbol = isCorrectTagNameStartSymbol;
-
 
         var isCorrectAttributeNameSymbol = isCorrectTagNameSymbol;
 
@@ -331,7 +365,7 @@
         testingExportsForMicrohelpers.isCorrectTagNameStartSymbol = isCorrectTagNameStartSymbol;
         testingExportsForMicrohelpers.isCorrectTagNameSymbol = isCorrectTagNameSymbol;
         testingExportsForMicrohelpers.isWhiteSpace = isWhiteSpace;
-        testingExportsForMicrohelpers.testOfSimpleHTMLTag = testOfSimpleHTMLTag;
+        testingExportsForMicrohelpers.isSingletonHTMLTag = isSingletonHTMLTag;
         testingExportsForMicrohelpers.isCorrectAttributeNameStartSymbol = isCorrectAttributeNameStartSymbol;
         testingExportsForMicrohelpers.isCorrectAttributeNameSymbol = isCorrectAttributeNameSymbol;
         testingExportsForMicrohelpers.addCharForBuffer = addCharForBuffer;
@@ -384,7 +418,7 @@
 
             if (
                 !isClosedTag
-                && (contextOfParse.isXMLMode || !testOfSimpleHTMLTag(tagName))
+                && (contextOfParse.isXMLMode || !isSingletonHTMLTag(tagName))
             ) {
                 contextOfParseTreeStack.push(newTag);
             }
@@ -399,14 +433,30 @@
          */
         function closeTag (contextOfParse) {
             var tagName = contextOfParse.tagName,
-                treeStack = contextOfParse.treeStack;
+                treeStack = contextOfParse.treeStack,
+                lastTreeStackTag,
+                isHasCollection = false,
+                notClosedTagsCollection;
 
             buildText(contextOfParse);
 
             while (
                 (treeStack.length !== 1)
-                && ((treeStack.pop()).name !== tagName)
-            ) {}
+                && ((lastTreeStackTag = treeStack.pop()).name !== tagName)
+            ) {
+                if (!isHasCollection) {
+                    isHasCollection = true;
+                    notClosedTagsCollection = [];
+                }
+
+                notClosedTagsCollection.push(lastTreeStackTag);
+            }
+
+            if (isHasCollection) {
+                defaultLib.reversiveCycle(notClosedTagsCollection, function (notClosedTag) {
+                    helpers.appendChild(lastTreeStackTag, notClosedTag);
+                });
+            }
 
             contextOfParse.state = TEXT;
         }

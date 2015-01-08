@@ -8,7 +8,7 @@ describe('Basic: tests work', function () {
         setTimeout(function () {
             expect(true).toBeTruthy();
             done();
-        }, 100);
+        }, 1);
     });
 
 });

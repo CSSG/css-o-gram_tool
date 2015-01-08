@@ -50,6 +50,7 @@ module.exports = function(config) {
 
         //Default Lib utils tests
         'tests/specs/DL/utils/typesDetectors.js',
+        'tests/specs/DL/utils/getObjectKeys.js',
         'tests/specs/DL/utils/cycle.js',
         'tests/specs/DL/utils/getObjectSafely.js',
         'tests/specs/DL/utils/getObjectLength.js',

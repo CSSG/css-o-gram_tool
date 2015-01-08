@@ -13,7 +13,7 @@
                 object[property] = {}
             } else if (!DL.isObject(object[property])) {
                 object = null;
-                return false;
+                return DL.cycleStopObject;
             }
             object = object[property];
         }, null, null, 1, 1);
