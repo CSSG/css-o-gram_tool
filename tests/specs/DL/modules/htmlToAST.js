@@ -430,6 +430,13 @@ describe('DL.htmlToAST', function () {
                         expect(contextOfParse.isXMLMode).toBe(false);
                     });
 
+                    it('commentBuffer', function () {
+                        expect(contextOfParse.commentBuffer).toBe('');
+                    });
+                    it('commentToken', function () {
+                        expect(contextOfParse.commentToken).toBe('');
+                    });
+
                     describe('use settings', function () {
                         var contextOfParse = new ContextOfParse({
                                 isXML: true
@@ -484,6 +491,12 @@ describe('DL.htmlToAST', function () {
                         });
                         it('attributes', function () {
                             expect(contextOfParse.attributes).toBeNull();
+                        });
+                        it('commentBuffer', function () {
+                            expect(contextOfParse.commentBuffer).toBeNull();
+                        });
+                        it('commentToken', function () {
+                            expect(contextOfParse.commentToken).toBeNull();
                         });
 
                     });
@@ -1158,6 +1171,68 @@ describe('DL.htmlToAST', function () {
 
                     });
 
+                });
+
+                describe('buildComment', function () {
+                    var buildComment = builders.buildComment;
+
+                    it('is define', function () {
+                        expect(buildComment).toBeDefined();
+                    });
+
+                    it('is function', function () {
+                        expect(buildComment).toEqual(jasmine.any(Function));
+                    });
+
+                    describe('build', function () {
+                        var contextOfParse = new ContextOfParse();
+                        contextOfParse.buffer = 'a<!--hello--';
+                        contextOfParse.textBuffer = 'a';
+                        contextOfParse.commentBuffer = 'hello';
+                        buildComment(contextOfParse);
+
+                        describe('contextOfParse', function () {
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('');
+                            });
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('');
+                            });
+                        });
+
+                        describe('TextNode', function () {
+                            var textNode = contextOfParse.result.childNodes[0];
+
+                            it('is define', function () {
+                                expect(textNode).toBeDefined();
+                            });
+
+                            it('is Text', function () {
+                                expect(textNode instanceof htmlToASTNodes.Text).toBeTruthy();
+                            });
+
+                            it('textNode.text is correct', function () {
+                                expect(textNode.text).toBe('a');
+                            });
+                        });
+
+                        describe('Comment', function () {
+                            var comment = contextOfParse.result.childNodes[1];
+
+                            it('is define', function () {
+                                expect(comment).toBeDefined();
+                            });
+
+                            it('is Comment', function () {
+                                expect(comment instanceof htmlToASTNodes.Comment).toBeTruthy();
+                            });
+
+                            it('comment.text is correct', function () {
+                                expect(comment.text).toBe('hello');
+                            });
+                        });
+
+                    });
                 });
             });
 
@@ -2710,6 +2785,315 @@ describe('DL.htmlToAST', function () {
 
 
                     });
+                });
+
+                describe('processingDeclarationStart', function () {
+                    var processingDeclarationStart = processings.processingDeclarationStart,
+                        processingText = processings.processingText,
+                        processingTagStart = processings.processingTagStart;
+
+                    it('is define', function () {
+                        expect(processingDeclarationStart).toBeDefined();
+                    });
+
+                    describe('change state', function () {
+
+                        describe('to TEXT', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, '!');
+                            processingDeclarationStart(contextOfParse, ' ');
+
+                            it('contextOfParse.state is TEXT', function () {
+                                expect(contextOfParse.state).toBe(states.TEXT);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('<! ');
+                            });
+
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('<! ');
+                            });
+
+                        });
+
+                        describe('to COMMENT_START', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, '!');
+                            processingDeclarationStart(contextOfParse, '-');
+
+                            it('contextOfParse.state is COMMENT_START', function () {
+                                expect(contextOfParse.state).toBe(states.COMMENT_START);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('<!-');
+                            });
+
+                        });
+
+                    });
+
+                });
+
+                describe('processingCommentStart', function () {
+                    var processingCommentStart = processings.processingCommentStart,
+                        processingDeclarationStart = processings.processingDeclarationStart,
+                        processingText = processings.processingText,
+                        processingTagStart = processings.processingTagStart;
+
+                    it('is define', function () {
+                        expect(processingCommentStart).toBeDefined();
+                    });
+
+                    describe('change state', function () {
+
+                        describe('to TEXT', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, '!');
+                            processingDeclarationStart(contextOfParse, '-');
+                            processingCommentStart(contextOfParse, ' ');
+
+                            it('contextOfParse.state is TEXT', function () {
+                                expect(contextOfParse.state).toBe(states.TEXT);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('<!- ');
+                            });
+
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('<!- ');
+                            });
+
+                        });
+
+                        describe('to COMMENT_BODY', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, '!');
+                            processingDeclarationStart(contextOfParse, '-');
+                            processingCommentStart(contextOfParse, '-');
+
+                            it('contextOfParse.state is COMMENT_BODY', function () {
+                                expect(contextOfParse.state).toBe(states.COMMENT_BODY);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('<!--');
+                            });
+
+                            it('contextOfParse.commentBuffer is correct', function () {
+                                expect(contextOfParse.commentBuffer).toBe('');
+                            });
+
+                        });
+
+                    });
+
+                });
+
+                describe('processingCommentBody', function () {
+                    var processingCommentBody = processings.processingCommentBody,
+                        processingCommentStart = processings.processingCommentStart,
+                        processingDeclarationStart = processings.processingDeclarationStart,
+                        processingText = processings.processingText,
+                        processingTagStart = processings.processingTagStart;
+
+                    it('is define', function () {
+                        expect(processingCommentBody).toBeDefined();
+                    });
+
+                    describe('change state', function () {
+
+                        describe('to COMMENT_END', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, '!');
+                            processingDeclarationStart(contextOfParse, '-');
+                            processingCommentStart(contextOfParse, '-');
+                            processingCommentBody(contextOfParse, 'a');
+                            processingCommentBody(contextOfParse, '-');
+
+                            it('contextOfParse.state is COMMENT_END', function () {
+                                expect(contextOfParse.state).toBe(states.COMMENT_END);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('<!--a-');
+                            });
+
+                            it('contextOfParse.commentBuffer is correct', function () {
+                                expect(contextOfParse.commentBuffer).toBe('a');
+                            });
+
+                            it('contextOfParse.commentToken is correct', function () {
+                                expect(contextOfParse.commentToken).toBe('-');
+                            });
+
+                        });
+
+
+                    });
+
+                });
+
+                describe('processingCommentEnd', function () {
+                    var processingCommentEnd = processings.processingCommentEnd,
+                        processingCommentBody = processings.processingCommentBody,
+                        processingCommentStart = processings.processingCommentStart,
+                        processingDeclarationStart = processings.processingDeclarationStart,
+                        processingText = processings.processingText,
+                        processingTagStart = processings.processingTagStart;
+
+                    it('is define', function () {
+                        expect(processingCommentEnd).toBeDefined();
+                    });
+
+                    describe('change state', function () {
+
+                        describe('to COMMENT_BODY', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, '!');
+                            processingDeclarationStart(contextOfParse, '-');
+                            processingCommentStart(contextOfParse, '-');
+                            processingCommentBody(contextOfParse, 'a');
+                            processingCommentBody(contextOfParse, '-');
+                            processingCommentEnd(contextOfParse, ' ');
+
+                            it('contextOfParse.state is COMMENT_BODY', function () {
+                                expect(contextOfParse.state).toBe(states.COMMENT_BODY);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('<!--a- ');
+                            });
+
+                            it('contextOfParse.commentBuffer is correct', function () {
+                                expect(contextOfParse.commentBuffer).toBe('a- ');
+                            });
+
+
+                        });
+
+                        describe('to COMMENT_CLOSE', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, '!');
+                            processingDeclarationStart(contextOfParse, '-');
+                            processingCommentStart(contextOfParse, '-');
+                            processingCommentBody(contextOfParse, 'a');
+                            processingCommentBody(contextOfParse, '-');
+                            processingCommentEnd(contextOfParse, '-');
+
+                            it('contextOfParse.state is COMMENT_CLOSE', function () {
+                                expect(contextOfParse.state).toBe(states.COMMENT_CLOSE);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('<!--a--');
+                            });
+
+                            it('contextOfParse.commentBuffer is correct', function () {
+                                expect(contextOfParse.commentBuffer).toBe('a');
+                            });
+
+                        });
+
+
+                    });
+
+                });
+
+                describe('processingCommentClose', function () {
+                    var processingCommentClose = processings.processingCommentClose,
+                        processingCommentEnd = processings.processingCommentEnd,
+                        processingCommentBody = processings.processingCommentBody,
+                        processingCommentStart = processings.processingCommentStart,
+                        processingDeclarationStart = processings.processingDeclarationStart,
+                        processingText = processings.processingText,
+                        processingTagStart = processings.processingTagStart;
+
+                    it('is define', function () {
+                        expect(processingCommentEnd).toBeDefined();
+                    });
+
+                    describe('change state', function () {
+
+                        describe('to COMMENT_BODY', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, '!');
+                            processingDeclarationStart(contextOfParse, '-');
+                            processingCommentStart(contextOfParse, '-');
+                            processingCommentBody(contextOfParse, 'a');
+                            processingCommentBody(contextOfParse, '-');
+                            processingCommentEnd(contextOfParse, '-');
+                            processingCommentClose(contextOfParse, 'b');
+
+                            it('contextOfParse.state is COMMENT_BODY', function () {
+                                expect(contextOfParse.state).toBe(states.COMMENT_BODY);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('<!--a--b');
+                            });
+
+                            it('contextOfParse.commentBuffer is correct', function () {
+                                expect(contextOfParse.commentBuffer).toBe('a--b');
+                            });
+
+
+                        });
+
+                        describe('to TEXT', function () {
+                            var contextOfParse = new ContextOfParse();
+                            processingText(contextOfParse, '<');
+                            processingTagStart(contextOfParse, '!');
+                            processingDeclarationStart(contextOfParse, '-');
+                            processingCommentStart(contextOfParse, '-');
+                            processingCommentBody(contextOfParse, 'a');
+                            processingCommentBody(contextOfParse, '-');
+                            processingCommentEnd(contextOfParse, '-');
+                            processingCommentClose(contextOfParse, '>');
+
+                            it('contextOfParse.state is TEXT', function () {
+                                expect(contextOfParse.state).toBe(states.TEXT);
+                            });
+
+                            it('contextOfParse.buffer is correct', function () {
+                                expect(contextOfParse.buffer).toBe('');
+                            });
+
+                            it('contextOfParse.textBuffer is correct', function () {
+                                expect(contextOfParse.textBuffer).toBe('');
+                            });
+
+                            describe('Comment', function () {
+                                var comment = contextOfParse.result.childNodes[0];
+
+                                it('is define', function () {
+                                    expect(comment).toBeDefined();
+                                });
+
+                                it('is comment', function () {
+                                    expect(comment instanceof htmlToASTNodes.Comment).toBeTruthy();
+                                });
+
+                                it('comment.text is correct', function () {
+                                    expect(comment.text).toBe('a');
+                                });
+                            });
+
+                        });
+
+
+                    });
+
                 });
 
             });

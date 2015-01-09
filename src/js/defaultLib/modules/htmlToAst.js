@@ -94,6 +94,12 @@
     //
     (function () {
         var htmlToASTNodes = htmlToAST.nodes;
+
+        function fragmentChildNodesProcessing (fragmentChildNode, index, childNodes, nodeTo) {
+            fragmentChildNode.parentNode = nodeTo;
+            nodeTo.childNodes.push(fragmentChildNode);
+        }
+
         /**
          *
          * @param {Fragment|Tag|Text|Comment} nodeTo
@@ -101,10 +107,12 @@
          */
         htmlToAST.helpers.appendChild = function (nodeTo, node) {
             if (node instanceof htmlToASTNodes.Fragment) {
-                defaultLib.cycle(node.childNodes, function (fragmentChildNode) {
-                    fragmentChildNode.parentNode = nodeTo;
-                    nodeTo.childNodes.push(fragmentChildNode);
-                });
+                //TODO: [dmitry.makhnev] [optional] rewrite to native if need optimizations
+                defaultLib.cycle(
+                    node.childNodes,
+                    fragmentChildNodesProcessing,
+                    nodeTo
+                );
                 node.childNodes.length = 0;
             } else {
                 if (node.parentNode) {
@@ -113,8 +121,6 @@
                 node.parentNode = nodeTo;
                 nodeTo.childNodes.push(node);
             }
-
-
         };
     } ());
 
@@ -173,7 +179,11 @@
             CLOSED_TAG_NAME = stateId++,
             CLOSED_TAG_BODY = stateId++,
 
-            DECLARATION_START = stateId++;
+            DECLARATION_START = stateId++,
+            COMMENT_START = stateId++,
+            COMMENT_BODY = stateId++,
+            COMMENT_END = stateId++,
+            COMMENT_CLOSE = stateId++;
 
         /*@DTesting.exports*/
         var testingExportsForStates = DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST');
@@ -194,7 +204,12 @@
             CLOSED_TAG_NAME: CLOSED_TAG_NAME,
             CLOSED_TAG_BODY: CLOSED_TAG_BODY,
 
-            DECLARATION_START: DECLARATION_START
+            DECLARATION_START: DECLARATION_START,
+
+            COMMENT_START: COMMENT_START,
+            COMMENT_BODY: COMMENT_BODY,
+            COMMENT_END: COMMENT_END,
+            COMMENT_CLOSE: COMMENT_CLOSE
         };
         /*@/DTesting.exports*/
 
@@ -233,6 +248,9 @@
 
             contextOfParse.attributes = null;
 
+            contextOfParse.commentBuffer = '';
+            contextOfParse.commentToken = '';
+
             if (settings) {
                 if (settings.isXML) {
                     isXMLMode = true;
@@ -254,6 +272,8 @@
             contextOfParse.attributeValueSeparator = null;
             contextOfParse.attributeValue = null;
             contextOfParse.attributes = null;
+            contextOfParse.commentBuffer = null;
+            contextOfParse.commentToken = null;
         };
 
         /*@DTesting.exports*/
@@ -427,6 +447,11 @@
 
         }
 
+
+        function closeTagNotClosedTagsCollectionProcessing (notClosedTag, index, notClosedTagsCollection, lastTreeStackTag) {
+            helpers.appendChild(lastTreeStackTag, notClosedTag);
+        }
+
         /**
          *
          * @param {ContextOfParse} contextOfParse
@@ -453,10 +478,33 @@
             }
 
             if (isHasCollection) {
-                defaultLib.reversiveCycle(notClosedTagsCollection, function (notClosedTag) {
-                    helpers.appendChild(lastTreeStackTag, notClosedTag);
-                });
+                //TODO: [dmitry.makhnev] [optional] rewrite to native if need optimizations
+                defaultLib.reversiveCycle(
+                    notClosedTagsCollection,
+                    closeTagNotClosedTagsCollectionProcessing,
+                    lastTreeStackTag
+                );
             }
+
+            contextOfParse.state = TEXT;
+        }
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         */
+        function buildComment (contextOfParse) {
+            var contextOfParseTreeStack = contextOfParse.treeStack,
+                newComment;
+
+            buildText(contextOfParse);
+
+            newComment = new nodes.Comment(contextOfParse.commentBuffer);
+
+            helpers.appendChild(
+                contextOfParseTreeStack[contextOfParseTreeStack.length - 1],
+                newComment
+            );
 
             contextOfParse.state = TEXT;
         }
@@ -467,6 +515,7 @@
         testingExportsBuilders.buildText = buildText;
         testingExportsBuilders.buildTag = buildTag;
         testingExportsBuilders.closeTag = closeTag;
+        testingExportsBuilders.buildComment = buildComment;
 
         /*@/DTesting.exports*/
 
@@ -482,12 +531,14 @@
         // processings
         //
 
+        var processings = [];
+
         /**
          *
          * @param {ContextOfParse} contextOfParse
          * @param {String} char
          */
-        function processingText (contextOfParse, char) {
+        processings[TEXT] = function (contextOfParse, char) {
             addCharForBuffer(contextOfParse, char);
 
             switch (char) {
@@ -497,10 +548,10 @@
                 default:
                     contextOfParse.textBuffer += char;
             }
-        }
+        };
 
         /*@DTesting.exports*/
-        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingText = processingText;
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingText = processings[TEXT];
         /*@/DTesting.exports*/
 
         /**
@@ -508,7 +559,7 @@
          * @param {ContextOfParse} contextOfParse
          * @param {String} char
          */
-        function processingTagStart (contextOfParse, char) {
+        processings[TAG_START] = function (contextOfParse, char) {
             addCharForBuffer(contextOfParse, char);
 
             if (isCorrectTagNameStartSymbol(char)) {
@@ -527,10 +578,10 @@
                         clearForTextState(contextOfParse);
                 }
             }
-        }
+        };
 
         /*@DTesting.exports*/
-        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagStart = processingTagStart;
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagStart = processings[TAG_START];
         /*@/DTesting.exports*/
 
         /**
@@ -538,7 +589,7 @@
          * @param {ContextOfParse} contextOfParse
          * @param {String} char
          */
-        function processingTagName (contextOfParse, char) {
+        processings[TAG_NAME] = function (contextOfParse, char) {
             addCharForBuffer(contextOfParse, char);
 
             if (isCorrectTagNameSymbol(char)) {
@@ -559,10 +610,10 @@
                 }
 
             }
-        }
+        };
 
         /*@DTesting.exports*/
-        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagName = processingTagName;
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagName = processings[TAG_NAME];
         /*@/DTesting.exports*/
 
         /**
@@ -570,7 +621,7 @@
          * @param {ContextOfParse} contextOfParse
          * @param {String} char
          */
-        function processingTagBody (contextOfParse, char) {
+        processings[TAG_BODY] = function (contextOfParse, char) {
             addCharForBuffer(contextOfParse, char);
 
             if (!isWhiteSpace(char)) {
@@ -591,10 +642,10 @@
                 }
             }
 
-        }
+        };
 
         /*@DTesting.exports*/
-        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagBody = processingTagBody;
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagBody = processings[TAG_BODY];
         /*@/DTesting.exports*/
 
         /**
@@ -602,7 +653,7 @@
          * @param {ContextOfParse} contextOfParse
          * @param {String} char
          */
-        function processingTagAttributeName (contextOfParse, char) {
+        processings[TAG_ATTRIBUTE_NAME] = function (contextOfParse, char) {
             addCharForBuffer(contextOfParse, char);
 
             switch (char) {
@@ -627,10 +678,10 @@
                         clearForTextState(contextOfParse);
                     }
             }
-        }
+        };
 
         /*@DTesting.exports*/
-        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagAttributeName = processingTagAttributeName;
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagAttributeName = processings[TAG_ATTRIBUTE_NAME];
         /*@/DTesting.exports*/
 
         /**
@@ -638,7 +689,7 @@
          * @param {ContextOfParse} contextOfParse
          * @param {String} char
          */
-        function processingTagAttributeToValue (contextOfParse, char) {
+        processings[TAG_ATTRIBUTE_TO_VALUE] = function (contextOfParse, char) {
             addCharForBuffer(contextOfParse, char);
 
             switch (char) {
@@ -651,10 +702,10 @@
                 default:
                     clearForTextState(contextOfParse);
             }
-        }
+        };
 
         /*@DTesting.exports*/
-        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagAttributeToValue = processingTagAttributeToValue;
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagAttributeToValue = processings[TAG_ATTRIBUTE_TO_VALUE];
         /*@/DTesting.exports*/
 
         /**
@@ -662,7 +713,7 @@
          * @param {ContextOfParse} contextOfParse
          * @param {String} char
          */
-        function processingTagAttributeValue (contextOfParse, char) {
+        processings[TAG_ATTRIBUTE_VALUE] = function (contextOfParse, char) {
             addCharForBuffer(contextOfParse, char);
 
             if (char === contextOfParse.attributeValueSeparator) {
@@ -671,10 +722,10 @@
             } else {
                 contextOfParse.attributeValue += char;
             }
-        }
+        };
 
         /*@DTesting.exports*/
-        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagAttributeValue = processingTagAttributeValue;
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagAttributeValue = processings[TAG_ATTRIBUTE_VALUE];
         /*@/DTesting.exports*/
 
         /**
@@ -682,7 +733,7 @@
          * @param {ContextOfParse} contextOfParse
          * @param {String} char
          */
-        function processingAttributeValueEnd (contextOfParse, char) {
+        processings[TAG_ATTRIBUTE_VALUE_END] = function (contextOfParse, char) {
             addCharForBuffer(contextOfParse, char);
 
             switch (char){
@@ -700,10 +751,10 @@
                         clearForTextState(contextOfParse);
                     }
             }
-        }
+        };
 
         /*@DTesting.exports*/
-        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingAttributeValueEnd = processingAttributeValueEnd;
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingAttributeValueEnd = processings[TAG_ATTRIBUTE_VALUE_END];
         /*@/DTesting.exports*/
 
         /**
@@ -711,17 +762,17 @@
          * @param {ContextOfParse} contextOfParse
          * @param {String} char
          */
-        function processingTagClose (contextOfParse, char) {
+        processings[TAG_CLOSE] = function (contextOfParse, char) {
             if (char === '>') {
                 buildTag(contextOfParse, true);
             } else {
                 addCharForBuffer(contextOfParse, char);
                 clearForTextState(contextOfParse);
             }
-        }
+        };
 
         /*@DTesting.exports*/
-        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagClose = processingTagClose;
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingTagClose = processings[TAG_CLOSE];
         /*@/DTesting.exports*/
 
         /**
@@ -729,7 +780,7 @@
          * @param {ContextOfParse} contextOfParse
          * @param {String} char
          */
-        function processingClosedTagStart (contextOfParse, char) {
+        processings[CLOSED_TAG_START] = function (contextOfParse, char) {
             addCharForBuffer(contextOfParse, char);
 
             if (isCorrectTagNameStartSymbol(char)) {
@@ -738,10 +789,10 @@
             } else {
                 clearForTextState(contextOfParse);
             }
-        }
+        };
 
         /*@DTesting.exports*/
-        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingClosedTagStart = processingClosedTagStart;
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingClosedTagStart = processings[CLOSED_TAG_START];
         /*@/DTesting.exports*/
 
         /**
@@ -749,7 +800,7 @@
          * @param {ContextOfParse} contextOfParse
          * @param {String} char
          */
-        function processingClosedTagName (contextOfParse, char) {
+        processings[CLOSED_TAG_NAME] = function processingClosedTagName (contextOfParse, char) {
             addCharForBuffer(contextOfParse, char);
 
             if (isCorrectTagNameStartSymbol(char)) {
@@ -761,10 +812,10 @@
             } else {
                 clearForTextState(contextOfParse);
             }
-        }
+        };
 
         /*@DTesting.exports*/
-        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingClosedTagName = processingClosedTagName;
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingClosedTagName = processings[CLOSED_TAG_NAME];
         /*@/DTesting.exports*/
 
         /**
@@ -772,7 +823,7 @@
          * @param {ContextOfParse} contextOfParse
          * @param {String} char
          */
-        function processingClosedTagBody (contextOfParse, char) {
+        processings[CLOSED_TAG_BODY] = function (contextOfParse, char) {
             addCharForBuffer(contextOfParse, char);
 
             if (char === '>') {
@@ -780,14 +831,116 @@
             } else if (!isWhiteSpace(char)) {
                 clearForTextState(contextOfParse);
             }
-        }
+        };
 
         /*@DTesting.exports*/
-        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingClosedTagBody = processingClosedTagBody;
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingClosedTagBody = processings[CLOSED_TAG_BODY];
+        /*@/DTesting.exports*/
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
+        processings[DECLARATION_START] = function (contextOfParse, char) {
+            addCharForBuffer(contextOfParse, char);
+
+            if (char === '-') {
+                contextOfParse.state = COMMENT_START;
+            } else {
+                clearForTextState(contextOfParse);
+            }
+        };
+
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingDeclarationStart = processings[DECLARATION_START];
+        /*@/DTesting.exports*/
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
+        processings[COMMENT_START] = function (contextOfParse, char) {
+            addCharForBuffer(contextOfParse, char);
+
+            if (char === '-') {
+                contextOfParse.state = COMMENT_BODY;
+                contextOfParse.commentBuffer = '';
+            } else {
+                clearForTextState(contextOfParse);
+            }
+
+        };
+
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingCommentStart = processings[COMMENT_START];
         /*@/DTesting.exports*/
 
 
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
+        processings[COMMENT_BODY] = function (contextOfParse, char) {
+            addCharForBuffer(contextOfParse, char);
 
+            if (char === '-') {
+                contextOfParse.state = COMMENT_END;
+                contextOfParse.commentToken = char;
+            } else {
+                contextOfParse.commentBuffer += char;
+            }
+        };
+
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingCommentBody = processings[COMMENT_BODY];
+        /*@/DTesting.exports*/
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
+        processings[COMMENT_END] = function (contextOfParse, char) {
+            addCharForBuffer(contextOfParse, char);
+
+            if (char === '-') {
+                contextOfParse.state = COMMENT_CLOSE;
+                contextOfParse.commentToken += char;
+            } else {
+                contextOfParse.state = COMMENT_BODY;
+                contextOfParse.commentBuffer += contextOfParse.commentToken + char;
+            }
+
+        };
+
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingCommentEnd = processings[COMMENT_END];
+        /*@/DTesting.exports*/
+
+
+        /**
+         *
+         * @param {ContextOfParse} contextOfParse
+         * @param {String} char
+         */
+        processings[COMMENT_CLOSE] = function processingCommentClose (contextOfParse, char) {
+
+            if (char === '>') {
+                buildComment(contextOfParse);
+            } else {
+                addCharForBuffer(contextOfParse, char);
+                contextOfParse.state = COMMENT_BODY;
+                contextOfParse.commentBuffer += contextOfParse.commentToken + char;
+            }
+
+        };
+
+        /*@DTesting.exports*/
+        DL.getObjectSafely(DTesting.exports, 'DL', 'htmlToAST', 'processings').processingCommentClose = processings[COMMENT_CLOSE];
+        /*@/DTesting.exports*/
 
         //
         // /processings
@@ -797,56 +950,24 @@
 
         /**
          *
-         * @param {String} html
+         * @param {String} xml
          * @return {Object} ast
          */
-        function parse (html) {
-            var contextOfParse = new ContextOfParse();
+        function parse (xml) {
+            var contextOfParse = new ContextOfParse(),
+                i = 0,
+                iMax = xml.length,
+                result;
 
-            //TODO: [dmitry.makhnev] write native cycle
-            defaultLib.cycle(html, function (char) {
-                switch (contextOfParse.state) {
-                    case TEXT:
-                        processingText(contextOfParse, char);
-                        break;
-                    case TAG_START:
-                        processingTagStart(contextOfParse, char);
-                        break;
-                    case TAG_NAME:
-                        processingTagName(contextOfParse, char);
-                        break;
-                    case TAG_BODY:
-                        processingTagBody(contextOfParse, char);
-                        break;
-                    case TAG_ATTRIBUTE_NAME:
-                        processingTagAttributeName(contextOfParse, char);
-                        break;
-                    case TAG_ATTRIBUTE_TO_VALUE:
-                        processingTagAttributeToValue(contextOfParse, char);
-                        break;
-                    case TAG_ATTRIBUTE_VALUE:
-                        processingTagAttributeValue(contextOfParse, char);
-                        break;
-                    case TAG_ATTRIBUTE_VALUE_END:
-                        processingAttributeValueEnd(contextOfParse, char);
-                        break;
-                    case CLOSED_TAG_START:
-                        processingClosedTagStart(contextOfParse, char);
-                        break;
-                    case CLOSED_TAG_NAME:
-                        processingClosedTagName(contextOfParse, char);
-                        break;
-                    case CLOSED_TAG_BODY:
-                        processingClosedTagBody(contextOfParse, char);
-                        break;
-                    case TAG_CLOSE:
-                        processingTagClose(contextOfParse, char);
-                        break;
+            //Info Comment [dmitry.makhnev] use native cycle because this is bottleneck
+            for (; i < iMax; i += 1) {
+                processings[contextOfParse.state](contextOfParse, xml.charAt(i));
+            }
 
-                }
-            });
+            result = contextOfParse.result;
+            contextOfParse.destructor();
 
-            return contextOfParse.result;
+            return result;
         }
 
         htmlToAST.parse = parse;
