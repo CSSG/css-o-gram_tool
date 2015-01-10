@@ -1,5 +1,5 @@
 (function (global) {
-    var notNestingTagsList = ['meta', 'link', 'input', 'img', 'br', 'hr'];
+    var singletonHTMLTags = ['img', 'input', 'br', 'hr', 'link', 'meta', 'source', 'area', 'embed', 'param', 'base', 'col', 'command'];
 
     /**
      *
@@ -17,7 +17,7 @@
                 attributesString += ' ' + key + '="' + value + '"';
             });
         }
-        if (notNestingTagsList.indexOf(tagName) === -1) {
+        if (singletonHTMLTags.indexOf(tagName) === -1) {
             if (contentItem) {
                 DL.cycle(arguments, function (contentItem) {
                     content += contentItem;
@@ -30,4 +30,5 @@
 
         return result;
     };
+
 } (this));

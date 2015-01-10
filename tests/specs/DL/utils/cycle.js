@@ -1,6 +1,3 @@
-(function (global) {
-    global._DL_CYCLE_TESTING_GLOBL_STORAGE_ = global;
-} (this));
 describe('DL.cycle', function () {
 
     it('DL.cycleStopKey is define', function () {
@@ -15,7 +12,7 @@ describe('DL.cycle', function () {
     //
 
     var undefined,
-        global = _DL_CYCLE_TESTING_GLOBL_STORAGE_;
+        global = DTesting.global;
 
     function Storages () {
         var storages = this;

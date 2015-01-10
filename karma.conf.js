@@ -30,12 +30,17 @@ module.exports = function(config) {
         //project code: define and utils
         'src/js/defaultLib/DL.js',
         'src/js/defaultLib/utils/**/*.js',
+        'src/js/defaultLib/modules/**/*.js',
 
         //DTesting utils
         'tests/tools/DTesting/utils/**/*.js',
 
-        //project code: modules
-        'src/js/defaultLib/modules/**/*.js',
+
+        //simpleDOM
+        'src/js/simpleDOM/simpleDOM.js',
+        'src/js/simpleDOM/simpleDOM.nodes.js',
+        'src/js/simpleDOM/simpleDOM.helpers.js',
+        'src/js/simpleDOM/simpleDOM.parse.js',
 
         //project build utils tests
         'tests/specs/projectEnvironmentSetting/gulpTasksData.js',
@@ -55,8 +60,24 @@ module.exports = function(config) {
         'tests/specs/DL/utils/getObjectSafely.js',
         'tests/specs/DL/utils/getObjectLength.js',
 
-        //Default Lib utils modules
-        'tests/specs/DL/modules/htmlToAST.js'
+        //simpleDOM tests
+        'tests/specs/simpleDOM/simpleDOM.js',
+        'tests/specs/simpleDOM/simpleDOM.nodes.js',
+        'tests/specs/simpleDOM/simpleDOM.helpers.js',
+        'tests/specs/simpleDOM/simpleDOM.parse/DTesting.exports.simpleDOM.parse/DTesting.exports.simpleDOM.parse.js',
+        'tests/specs/simpleDOM/simpleDOM.parse/DTesting.exports.simpleDOM.parse/contextOfParse.js',
+
+        //microhelpers
+        //TODO: [dmitry.makhnev] symbols collection
+        //TODO: [dmitry.makhnev] numbers collection
+        //TODO: [dmitry.makhnev] latin letters collection
+        //TODO: [dmitry.makhnev] some letters collection
+        //TODO: [dmitry.makhnev] add generations expect with all collections
+        'tests/specs/simpleDOM/simpleDOM.parse/DTesting.exports.simpleDOM.parse/microhelpers/**/*.js',
+
+        'tests/specs/simpleDOM/simpleDOM.parse/DTesting.exports.simpleDOM.parse/builders/**/*.js',
+        'tests/specs/simpleDOM/simpleDOM.parse/DTesting.exports.simpleDOM.parse/processings/**/*.js',
+        'tests/specs/simpleDOM/simpleDOM.parse/simpleDOM.parse.js'
 
         //project code tests
     ],
