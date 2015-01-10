@@ -68,10 +68,10 @@ module.exports = function(config) {
         'tests/specs/simpleDOM/simpleDOM.parse/DTesting.exports.simpleDOM.parse/contextOfParse.js',
 
         //microhelpers
-        //TODO: [dmitry.makhnev] symbols collection
-        //TODO: [dmitry.makhnev] numbers collection
-        //TODO: [dmitry.makhnev] latin letters collection
-        //TODO: [dmitry.makhnev] some letters collection
+        //TODO: [dmitry.makhnev] symbols collection for regexp
+        //TODO: [dmitry.makhnev] numbers collection for regexp
+        //TODO: [dmitry.makhnev] latin letters collection for regexp
+        //TODO: [dmitry.makhnev] some letters collection for regexp
         //TODO: [dmitry.makhnev] add generations expect with all collections
         'tests/specs/simpleDOM/simpleDOM.parse/DTesting.exports.simpleDOM.parse/microhelpers/**/*.js',
 

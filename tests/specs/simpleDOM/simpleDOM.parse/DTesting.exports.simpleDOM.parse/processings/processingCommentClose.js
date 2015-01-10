@@ -12,12 +12,6 @@ describe('processingCommentClose (DTesting.exports.simpleDOM.parse.processings)'
         processingText = processings.processingText,
         processingTagStart = processings.processingTagStart;
 
-    var simpleDOMNodes = DTesting.global.simpleDOM.nodes;
-    var parseExports = DTesting.exports.simpleDOM.parse;
-    var statesExports = parseExports.states;
-    var ContextOfParse = parseExports.ContextOfParse;
-    var processings = parseExports.processings;
-
     it('is define', function () {
         expect(processingCommentEnd).toBeDefined();
     });

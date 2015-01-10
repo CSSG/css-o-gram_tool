@@ -806,6 +806,17 @@
     processingsExport.processingCommentClose = processings[COMMENT_CLOSE];
     /*@/DTesting.exports*/
 
+    function processingResultState (contextOfParse) {
+        if (contextOfParse.buffer !== '') {
+            contextOfParse.textBuffer = contextOfParse.buffer;
+            buildText(contextOfParse);
+        }
+    }
+
+    /*@DTesting.exports*/
+    processingsExport.processingResultState = processingResultState;
+    /*@/DTesting.exports*/
+
     //
     // /processings
     //
@@ -827,6 +838,8 @@
         for (; i < iMax; i += 1) {
             processings[contextOfParse.state](contextOfParse, xml.charAt(i));
         }
+
+        processingResultState(contextOfParse);
 
         result = contextOfParse.result;
         contextOfParse.destructor();

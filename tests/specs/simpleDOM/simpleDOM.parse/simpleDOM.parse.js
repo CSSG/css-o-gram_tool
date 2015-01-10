@@ -3,9 +3,9 @@ describe('simpleDOM.parse', function () {
     var simpleDOM = DTesting.global.simpleDOM,
         simpleDOMNodes = simpleDOM.nodes;
 
-    it('any AST root is Fragment', function () {
-        var ast = simpleDOM.parse('');
-        expect(ast instanceof simpleDOMNodes.Fragment).toBeTruthy();
+    it('any simpleDOMResult root is Fragment', function () {
+        var simpleDOMResult = simpleDOM.parse('');
+        expect(simpleDOMResult instanceof simpleDOMNodes.Fragment).toBeTruthy();
     });
 
     //
@@ -83,8 +83,8 @@ describe('simpleDOM.parse', function () {
 
     describe('one span', function () {
 
-        var ast = simpleDOM.parse(createDefaultSpan()),
-            span = ast.childNodes[0];
+        var simpleDOMResult = simpleDOM.parse(createDefaultSpan()),
+            span = simpleDOMResult.childNodes[0];
 
         defaultSpanTests(span);
 
@@ -92,8 +92,8 @@ describe('simpleDOM.parse', function () {
 
     describe('one div with attributes', function () {
 
-        var ast = simpleDOM.parse(createDefaultDiv()),
-            div = ast.childNodes[0];
+        var simpleDOMResult = simpleDOM.parse(createDefaultDiv()),
+            div = simpleDOMResult.childNodes[0];
 
         defaultDivTests(div);
 
@@ -102,9 +102,9 @@ describe('simpleDOM.parse', function () {
 
     describe('2 linear tags', function () {
 
-        var ast = simpleDOM.parse(createDefaultSpan() + createDefaultDiv()),
-            span = ast.childNodes[0],
-            div = ast.childNodes[1];
+        var simpleDOMResult = simpleDOM.parse(createDefaultSpan() + createDefaultDiv()),
+            span = simpleDOMResult.childNodes[0],
+            div = simpleDOMResult.childNodes[1];
 
         describe('span', function () {
             defaultSpanTests(span);
@@ -117,9 +117,9 @@ describe('simpleDOM.parse', function () {
     });
 
     describe('2 nested divs', function () {
-        var ast = simpleDOM.parse(createDefaultDiv(createDefaultDiv())),
-            div1 = ast.childNodes[0],
-            div2 = ast.childNodes[0].childNodes[0];
+        var simpleDOMResult = simpleDOM.parse(createDefaultDiv(createDefaultDiv())),
+            div1 = simpleDOMResult.childNodes[0],
+            div2 = simpleDOMResult.childNodes[0].childNodes[0];
 
         describe('parent div', function () {
             defaultDivTests(div1);
@@ -132,8 +132,8 @@ describe('simpleDOM.parse', function () {
     });
 
     describe('<select> with not closed <option>', function () {
-        var ast = simpleDOM.parse('<select><option value="1">hello<option value="2"><option value="3"></select>');
-        var select = ast.childNodes[0];
+        var simpleDOMResult = simpleDOM.parse('<select><option value="1">hello<option value="2"><option value="3"></select>');
+        var select = simpleDOMResult.childNodes[0];
         describe('select', function () {
             it('is define', function () {
             expect(select).toBeDefined();
@@ -190,6 +190,145 @@ describe('simpleDOM.parse', function () {
         });
 
 
+
+    });
+
+    describe('comment parse', function () {
+        var simpleDOMResult = simpleDOM.parse('a<div></div><!--CoMmEnT-->b');
+
+        var resultFragmentChildNodes = simpleDOMResult.childNodes;
+
+        it('correct result.childNodes length', function () {
+            expect(resultFragmentChildNodes.length).toBe(4);
+        });
+
+        describe('first textNode', function () {
+            var textNode = resultFragmentChildNodes[0];
+
+            it('is define', function () {
+                expect(textNode).toBeDefined();
+            });
+
+            it('is Text', function () {
+                expect(textNode instanceof simpleDOMNodes.Text).toBe(true);
+            });
+
+            it('textNode.text is correct', function () {
+                expect(textNode.text).toBe('a');
+            });
+
+        });
+
+        describe('tag', function () {
+            var tag = resultFragmentChildNodes[1];
+
+            it('is define', function () {
+                expect(tag).toBeDefined();
+            });
+
+            it('is Tag', function () {
+                expect(tag instanceof simpleDOMNodes.Tag).toBe(true);
+            });
+
+            it('tag.name is correct', function () {
+                expect(tag.name).toBe('div');
+            });
+
+        });
+
+        describe('comment', function () {
+            var comment = resultFragmentChildNodes[2];
+
+            it('is define', function () {
+                expect(comment).toBeDefined();
+            });
+
+            it('is Tag', function () {
+                expect(comment instanceof simpleDOMNodes.Comment).toBe(true);
+            });
+
+            it('tag.name is correct', function () {
+                expect(comment.text).toBe('CoMmEnT');
+            });
+        });
+
+        describe('second textNode', function () {
+            var textNode = resultFragmentChildNodes[3];
+
+            it('is define', function () {
+                expect(textNode).toBeDefined();
+            });
+
+            it('is Text', function () {
+                expect(textNode instanceof simpleDOMNodes.Text).toBe(true);
+            });
+
+            it('textNode.text is correct', function () {
+                expect(textNode.text).toBe('b');
+            });
+
+        });
+    });
+
+    describe('unfinished part', function () {
+        var simpleDOMResult = simpleDOM.parse('a<div></div><da');
+
+        var resultFragmentChildNodes = simpleDOMResult.childNodes;
+
+        it('correct result.childNodes length', function () {
+            expect(resultFragmentChildNodes.length).toBe(3);
+        });
+
+        describe('first textNode', function () {
+            var textNode = resultFragmentChildNodes[0];
+
+            it('is define', function () {
+                expect(textNode).toBeDefined();
+            });
+
+            it('is Text', function () {
+                expect(textNode instanceof simpleDOMNodes.Text).toBe(true);
+            });
+
+            it('textNode.text is correct', function () {
+                expect(textNode.text).toBe('a');
+            });
+
+        });
+
+        describe('tag', function () {
+            var tag = resultFragmentChildNodes[1];
+
+            it('is define', function () {
+                expect(tag).toBeDefined();
+            });
+
+            it('is Tag', function () {
+                expect(tag instanceof simpleDOMNodes.Tag).toBe(true);
+            });
+
+            it('tag.name is correct', function () {
+                expect(tag.name).toBe('div');
+            });
+
+        });
+
+        describe('second textNode', function () {
+            var textNode = resultFragmentChildNodes[2];
+
+            it('is define', function () {
+                expect(textNode).toBeDefined();
+            });
+
+            it('is Text', function () {
+                expect(textNode instanceof simpleDOMNodes.Text).toBe(true);
+            });
+
+            it('textNode.text is correct', function () {
+                expect(textNode.text).toBe('<da');
+            });
+
+        });
 
     });
 
