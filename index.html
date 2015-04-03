@@ -5,27 +5,30 @@
     <title>CSSG multipurpose converter</title>
 
     <meta name="keywords" content="CSS, CSSG, converter, tool, CSS-o-Gram">
-    <meta name="author" content="Evgeny Khoroshilov">
+    <meta name="author" content="https://github.com/CSSG">
 
     <link href="css/cssg.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Cabin:400,600,400italic|Ubuntu:400,700' rel='stylesheet' type='text/css'>
 
-    <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="js/cssg.js"></script>
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
 
 </head>
 <body>
-<div class="holder">
+<div class="container">
 
-    <h1>CSSG multipurpose converter</h1>
-
-    <p class="version">v 0.0.8 alpha</p>
+    <h1>
+        CSSG multipurpose converter
+        <small>v 0.1.0 alpha</small>
+    </h1>
 
     <div class="cssg-converter">
 
         <div class="head">
 
+            <h2>Settings</h2>
+
             <div class="settings">
-                <div class="h">Settings</div>
+
                 <div class="col cssg-setting">
                     <label><input type="checkbox" name="autorecalc" checked>Auto recalculate</label>
                 </div>
@@ -84,7 +87,7 @@
         <div class="body">
 
             <div class="col input">
-                <div class="h">Input</div>
+                <h2>Input</h2>
 
                 <div class="content">
                     <textarea name="cssgInput" id="cssgInput" cols="30" rows="10">
@@ -112,7 +115,10 @@
             </div><!--
 
             --><div class="col output">
-                <div class="h">Output</div>
+                <h2>
+                    Output
+                    <small>maximum DOM level: <span id="cssgLevels">0</span></small>
+                </h2>
 
                 <div class="content">
                     <textarea name="cssgOutput" id="cssgOutput" readonly cols="30" rows="10"></textarea>
@@ -124,12 +130,15 @@
 
         <div class="foot">
             <div class="controls">
-                <button id="cssgInit">C, S, S, GO!</button>
+                <button id="cssgInit">Process</button>
             </div>
         </div>
 
     </div>
 
 </div>
+
+<script type="text/javascript" src="js/cssg.js"></script>
+
 </body>
 </html>
