@@ -49,6 +49,7 @@ $(function(){
         this.cssgInput = $('#cssgInput')
         ,this.cssgOutput = $('#cssgOutput')
         ,this.cssgOutputValue = []
+        ,this.cssgLevels = $('#cssgLevels')
 
         // interface settings
         ,this.cssgSetIndent = $('input[name="indentation"]')
@@ -60,31 +61,31 @@ $(function(){
         ,this.cssgSetTrim = $('input[name="trimtext"]')
         ,this.cssgSetAuto = $('input[name="autorecalc"]')
         ,this.cssgSetTags = $('input[name="tagnames"]')
-        
+
         // interface controls
         ,this.cssgClear = $('#cssgClear')
         ,this.cssgInit = $('#cssgInit')
         
-        // aux
+        // state
         ,this.done = false
 
         // settings
         ,this.settings = {
-            indent : '\t',
-            indentVal : {
+            indentation : '\t',
+            indentationVal : {
                 0 : '\t',
                 1 : '  ',
                 2 : '    '
             },
-            line : '\n\n',
-            lineVal: {
+            lineheight : '\n\n',
+            lineheightVal: {
                 0 : '\n\n',
                 1 : '\n',
                 2 : '\n\n\n'
             },
-            trim: true,
+            trimtext: true,
             rulespace: true,
-            auto: true,
+            autorecalc: true,
             tagnames: false,
 
             //todo: reverse processing
@@ -108,8 +109,8 @@ $(function(){
             moddistance : 2,
 
             textRes : {
-                empty : 'Enter something, MOTHERFUCKER!!!',
-                error : 'Invalid XML, MOTHERFUCKER!!!'
+                empty : 'Need moar raw HTML...',
+                error : 'Can\'t process this HTML...'
             }
         };
 
@@ -118,69 +119,49 @@ $(function(){
             this.settings = $.extend({}, this.settings, settings);
         }
 
+        // combine setters
+        this.cssgSetters = [
+            _this.cssgSetIndent
+            ,_this.cssgSetLine
+            ,_this.cssgSetMod
+            ,_this.cssgSetOutput
+            ,_this.cssgSetSpace
+            ,_this.cssgSetTrim
+            ,_this.cssgSetAuto
+            ,_this.cssgSetTags
+        ];
+
+        // add listeners to
+        this.cssgSetters.map(function(el, index){
+
+            var
+                setter = el,
+                setterName = setter.get(0).name,
+                setterType = setter.get(0).type;
+
+            switch(setterType){
+                case 'radio':
+                    setter.on('click', function(){
+
+                        setter.checked = 'checked';
+                        _this.setValue(setterName, setter.filter(':checked').val());
+                        _this.recalc();
+                    });
+                    break;
+
+                case 'checkbox':
+                    setter.on('change', function(){
+
+                        _this.setValue(setterName, setter.get(0).checked ? true : false);
+                        _this.recalc();
+                    });
+                    break;
+            }
+
+        });
+
         //
         // Interface bindings
-        // todo: combine similar settings
-
-        // klass indent
-        this.cssgSetIndent.on({
-            click : function(){
-                this.checked = 'checked';
-                _this.setValue('indent', _this.cssgSetIndent.filter(':checked').val());
-                _this.recalc();
-            }
-        });
-
-        // line height
-        this.cssgSetLine.on({
-            click : function(){
-                this.checked = 'checked';
-                _this.setValue('line', _this.cssgSetLine.filter(':checked').val());
-                _this.recalc();
-            }
-        });
-
-        // modifier
-        this.cssgSetMod.on({
-            click : function(){
-                this.checked = 'checked';
-                _this.setValue('modifier', _this.cssgSetMod.filter(':checked').val());
-                _this.recalc();
-            }
-        });
-
-        // output
-        this.cssgSetOutput.on({
-            click : function(){
-                this.checked = 'checked';
-                _this.setValue('output', _this.cssgSetOutput.filter(':checked').val());
-                _this.recalc();
-            }
-        });
-
-        // rule space
-        this.cssgSetSpace.on({
-            change : function(){
-                _this.setValue('rulespace', this.checked ? true : false);
-                _this.recalc();
-            }
-        });
-
-        // text trimming
-        this.cssgSetTrim.on({
-            change : function(){
-                _this.setValue('trim', this.checked ? true : false);
-                _this.recalc();
-            }
-        });
-
-        // leave tagnames
-        this.cssgSetTags.on({
-            change : function(){
-                _this.setValue('tagnames', this.checked ? true : false);
-                _this.recalc();
-            }
-        });
 
         // auto recalculate
         this.cssgSetAuto.on({
@@ -188,27 +169,27 @@ $(function(){
                 // toggle button
                 if(this.checked) _this.cssgInit.hide();
                 else _this.cssgInit.show();
-
-                _this.setValue('auto', this.checked ? true : false);
-                _this.recalc();
             }
         });
+
 
         //
         // Initial settings
 
         // radio buttons
-        this.setValue('indent',     _this.cssgSetIndent.filter(':checked').val());
-        this.setValue('line',       _this.cssgSetLine.filter(':checked').val());
-        this.setValue('modifier',   _this.cssgSetMod.filter(':checked').val());
-        this.setValue('output',     _this.cssgSetOutput.filter(':checked').val());
+        this.setValue('indentation',        _this.cssgSetIndent.filter(':checked').val());
+        this.setValue('lineheight',         _this.cssgSetLine.filter(':checked').val());
+        this.setValue('modifier',           _this.cssgSetMod.filter(':checked').val());
+        this.setValue('output',             _this.cssgSetOutput.filter(':checked').val());
 
         //checkboxes
-        this.setValue('rulespace',  !!(_this.cssgSetSpace.attr('checked')=='checked'));
-        this.setValue('trim',       !!(_this.cssgSetTrim.attr('checked')=='checked'));
-        this.setValue('tagnames',   !!(_this.cssgSetTags.attr('checked')=='checked'));
+        this.setValue('rulespace',          !!(_this.cssgSetSpace.attr('checked')=='checked'));
+        this.setValue('trimtext',           !!(_this.cssgSetTrim.attr('checked')=='checked'));
+        this.setValue('tagnames',           !!(_this.cssgSetTags.attr('checked')=='checked'));
 
-        this.setValue('auto',       !!(_this.cssgSetAuto.attr('checked')=='checked'));
+        this.setValue('autorecalc',         !!(_this.cssgSetAuto.attr('checked')=='checked'));
+
+        // check autorecalc initital setting
         if(this.cssgSetAuto.attr('checked')=='checked') {
             this.cssgInit.hide();
             this.init();
@@ -243,7 +224,6 @@ $(function(){
         this.cssgOutput.on({
             'click focus' : function(){
                 var textbox = this;
-                textbox.select();
                 // hack to prevent mouse action
                 textbox.onmouseup = function() {
                     textbox.onmouseup = null;
@@ -254,9 +234,21 @@ $(function(){
 
         //
         // Auto recalc
+        var autoRecalc = {
+            to: 300,
+            id : null
+        };
+
         this.cssgInput.on({
-            'keyup' : function(){ //todo: event on paste
-                _this.recalc();
+            'keyup paste cut' : function(){
+                // wrapper for throttling event
+                if(!autoRecalc.id && _this.settings.autorecalc){
+                    autoRecalc.id = setTimeout(function(){
+                        _this.recalc();
+                        clearTimeout(autoRecalc.id);
+                        autoRecalc.id = null;
+                    }, autoRecalc.to);
+                }
             }
         });
 
@@ -287,6 +279,13 @@ $(function(){
         //this.done = true;
         // callback if any
         if(callback && typeof callback == "function") return callback();
+    };
+
+    //
+    // Level counter
+    //
+    CSSG.prototype.levels = function(val){
+        this.cssgLevels.text(val ? val : 0);
     };
 
     //
@@ -321,7 +320,7 @@ $(function(){
         }
 
         // clean all text nodes        
-        if(this.settings.trim){
+        if(this.settings.trimtext){
             inputValue = inputValue.cleanHtml();
         }
 
@@ -335,7 +334,7 @@ $(function(){
     //
     CSSG.prototype.recalc = function(){
         var _this = this;
-        if(this.settings.auto) this.init();
+        this.init();
     };
 
     //
@@ -391,7 +390,7 @@ $(function(){
                             var md = '';
                             // todo: correct mod calculation
                             for(var i=0; i<(_this.settings.moddistance); i++){
-//                                md += _this.settings.indent;
+//                                md += _this.settings.indentation;
                                 md += '\t';
                             }
                             return md;
@@ -457,9 +456,11 @@ $(function(){
                 next = holder,
                 current, sibling, parent,
                 indent = '',
-                indentLength = this.settings.indent.length,
-                lineheight = this.settings.line,
-                cnt = 0
+                indentLength = this.settings.indentation.length,
+                lineheight = this.settings.lineheight,
+                cnt = 0,
+                levels = 0,
+                currentLevel = 0
                 ;
 
         holder.innerHTML = input;
@@ -468,7 +469,11 @@ $(function(){
 
             current = next;
 
-            if (current.nodeType == 1 || (current.nodeType == 3 && reg.hasSymbols.test(current.nodeValue))) {
+            // detect maximum level
+            currentLevel = indent.split(_this.settings.indentation).length - 1;
+            levels = currentLevel > levels ? currentLevel : levels;
+
+            if (current.nodeType == 1 || (current.nodeType == 3 && /[^\s]+/g.test(current.nodeValue))) {
                 //ignore holder div
                 if(cnt!=0){
                     //add extra line due to cssg rule
@@ -480,7 +485,7 @@ $(function(){
             }
             if (next.firstChild) {
                 next = next.firstChild;
-                indent += this.settings.indent;
+                indent += this.settings.indentation;
             } else {
                 sibling = next.nextSibling;
                 parent = next.parentNode;
@@ -496,6 +501,9 @@ $(function(){
             cnt++;
 
         }
+
+        // update levels value
+        this.levels(levels);
 
         this.cssgOutput.val(_this.cssgOutputValue);
         this.done = true;
