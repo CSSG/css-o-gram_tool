@@ -1,3 +1,3 @@
 # CSSG tool
 
-Multipurpose tool using principles of [CSSG descriptional language](https://github.com/XOP/css-o-gram/tree/master/en) 
+Multipurpose tool using principles of [CSS descriptional language](https://github.com/CSSG/css-o-gram) 
