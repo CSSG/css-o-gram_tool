@@ -84,32 +84,41 @@ body, html {
 /* Headers
 -------------------------------------------------- */
 
-h1, h2, h3 {
-	font-family: $ff-alt;
-	}
+.cssg-converter-container {
 
-h1 {
-	margin: $line 0;
-	font-size: $fs-n * 2;
-	color: $c-main;
-
-	small {
-		display: block;
-		margin: $line 0;
-
-		color: $c-aux;
-		font-size: $fs-s;
-		font-style: normal;
+	h1, h2, h3 {
+		font-family: $ff-alt;
 		}
-	}
 
-h2 {
-	margin: 0 0 $line;
-	padding-left: 1vw;
-	border-left: 1vw solid $bg-brand;
+	h1 {
+		margin: $line 0;
+		font-size: $fs-n * 2;
+		color: $c-main;
 
-	color: $c-alt;
-	font-size: $fs-n * 1.5;
+		small {
+			display: block;
+			margin: $line 0;
+
+			color: $c-aux;
+			font-size: $fs-s;
+			font-style: normal;
+			}
+		}
+
+	h2 {
+		margin: 0 0 $line;
+		padding-left: 1vw;
+		border-left: 1vw solid $bg-brand;
+
+		color: $c-alt;
+		font-size: $fs-n * 1.5;
+
+		small {
+			padding-left: 2vw;
+			font-size: 12px;
+			color: $c-main;
+			}
+		}
 	}
 
 /* /Headers */
@@ -118,7 +127,7 @@ h2 {
 /* Components
 -------------------------------------------------- */
 
-button {
+button.cssg-converter_btn {
 	@include fade;
 
 	border-radius: $line / 4;
@@ -145,17 +154,9 @@ button {
 		}
 	}
 
-.col {
+.cssg-converter_col {
 	display: inline-block;
 	vertical-align: top;
-	}
-
-h2 {
-	small {
-		padding-left: 2vw;
-		font-size: 12px;
-		color: $c-main;
-		}
 	}
 
 /* /Components */
@@ -194,42 +195,42 @@ h2 {
 			background-color: lighten($bg-brand, 20%);
 			}
 		}
+	}
 
-	/* head */
+/* head */
 
-	.head {
-		padding: $line 0;
-		font-size: $fs-l;
-		}
+.cssg-converter_head {
+	padding: $line 0;
+	font-size: $fs-l;
+	}
 
-	/* body */
+/* body */
 
-	.body {
-		position: relative;
-		overflow-y: auto;
-		padding: $line 0;
+.cssg-converter_body {
+	position: relative;
+	overflow-y: auto;
+	padding: $line 0;
 
-		border-top: 2px solid $bg-aux2;
-		min-height: $h-text;
+	border-top: 2px solid $bg-aux2;
+	min-height: $h-text;
 
-		.col {
-			width: 50%;
-			padding-left: 1vw;
-			box-sizing: border-box;
+	.cssg-converter_col {
+		width: 50%;
+		padding-left: 1vw;
+		box-sizing: border-box;
 
-			&:first-child {
-				padding-left: 0;
-				padding-right: 1vw;
-				}
+		&:first-child {
+			padding-left: 0;
+			padding-right: 1vw;
 			}
 		}
+	}
 
-	/* footer */
+/* footer */
 
-	.foot {
-		padding: 0 0 10px;
-		font-size: $fs-l;
-		}
+.cssg-converter_foot {
+	padding: 0 0 10px;
+	font-size: $fs-l;
 	}
 
 /* /Layout */
@@ -238,9 +239,9 @@ h2 {
 /* Controls
 -------------------------------------------------- */
 
-.controls {
+.cssg-converter_controls {
 
-	.button {
+	.cssg-converter_btn {
 		margin-right: 2vw;
 		}
 	}
@@ -251,7 +252,7 @@ h2 {
 /* Content
 -------------------------------------------------- */
 
-.content {
+.cssg-converter_content {
 	@include monospace;
 
 	background: $bg-brand;
@@ -291,7 +292,7 @@ h2 {
 /* Settings
 -------------------------------------------------- */
 
-.settings {
+.cssg-converter_settings {
 	margin: $line 0;
 
 	&:last-child {
@@ -300,7 +301,7 @@ h2 {
 		}
 	}
 
-.cssg-setting {
+.cssg-converter_setting {
 	@include fade;
 
 	margin: 0 ($line / 4) ($line / 4) 0;
