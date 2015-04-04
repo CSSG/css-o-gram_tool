@@ -14,7 +14,7 @@
 
 </head>
 <body>
-<div class="container">
+<div class="cssg-converter-container">
 
     <h1>
         CSSG multipurpose converter
@@ -23,46 +23,46 @@
 
     <div class="cssg-converter">
 
-        <div class="head">
+        <div class="cssg-converter_head">
 
             <h2>Settings</h2>
 
-            <div class="settings">
+            <div class="cssg-converter_settings">
 
-                <div class="col cssg-setting">
+                <div class="cssg-converter_col cssg-converter_setting">
                     <label><input type="checkbox" name="autorecalc" checked>Auto recalculate</label>
                 </div>
-                <div class="col cssg-setting">
+                <div class="cssg-converter_col cssg-converter_setting">
                     <label><input type="checkbox" name="rulespace" checked>Rule space</label>
                 </div>
-                <div class="col cssg-setting">
+                <div class="cssg-converter_col cssg-converter_setting">
                     <label><input type="checkbox" name="trimtext" checked>Trim text</label>
                 </div>
-                <div class="col cssg-setting">
+                <div class="cssg-converter_col cssg-converter_setting">
                     <label><input type="checkbox" name="tagnames">Keep tag names</label>
                 </div>
                 <br>
-                <div class="col cssg-setting">
+                <div class="cssg-converter_col cssg-converter_setting">
                     <label>Modifier:</label>
                     <label><input type="radio" value="0" name="modifier" checked>'__'</label>
                     <label><input type="radio" value="1" name="modifier">'_'</label>
                     <label><input type="radio" value="2" name="modifier">'--'</label>
                     <label><input type="radio" value="3" name="modifier">'-'</label>
                 </div>
-                <div class="col cssg-setting">
+                <div class="cssg-converter_col cssg-converter_setting">
                     <label>Output:</label>
                     <label><input type="radio" value="0" name="output" checked>cssg</label>
                     <label><input type="radio" value="1" name="output">css</label>
                     <label><input type="radio" value="2" name="output">haml</label>
                 </div>
                 <br>
-                <div class="col cssg-setting">
+                <div class="cssg-converter_col cssg-converter_setting">
                     <label>Indentation:</label>
                     <label><input type="radio" value="0" name="indentation" >tab</label>
                     <label><input type="radio" value="1" name="indentation" checked>2 spaces</label>
                     <label><input type="radio" value="2" name="indentation">4 spaces</label>
                 </div>
-                <div class="col cssg-setting">
+                <div class="cssg-converter_col cssg-converter_setting">
                     <label>Line height:</label>
                     <label><input type="radio" value="0" name="lineheight">regular</label>
                     <label><input type="radio" value="1" name="lineheight" checked>compact</label>
@@ -71,56 +71,56 @@
             </div>
 
             <!--
-            <div class="settings">
-                <div class="col cssg-filter">
+            <div class="cssg-converter_settings">
+                <div class="cssg-converter_col cssg-filter">
                     <input type="text" value="" name="baseclass" placeholder="base class" />
                 </div>
             </div>
             -->
 
-            <div class="settings">
-                <button id="cssgClear">Clear</button>
+            <div class="cssg-converter_settings">
+                <button class="cssg-converter_btn" id="cssgClear">Clear</button>
             </div>
 
         </div>
 
-        <div class="body">
+        <div class="cssg-converter_body">
 
-            <div class="col input">
+            <div class="cssg-converter_col input">
                 <h2>Input</h2>
 
-                <div class="content">
+                <div class="cssg-converter_content">
                     <textarea name="cssgInput" id="cssgInput" cols="30" rows="10">
 
-                        <div class="a b __c klass__d __g">
+<div class="a b __c klass__d __g">
 
-                            <div class="e"></div>
-                            <div class="f"></div>
+    <div class="e"></div>
+    <div class="f"></div>
 
-                            <div class="gddddddddddddddddddddd __h"></div>
+    <div class="gddddddddddddddddddddd __h"></div>
 
-                        </div>
+</div>
 
-                        <div class="e eem-op">
-                            <div class="k beem--b">
-                                <div class="l">
-                                    <div class="m __lll"></div>
-                                </div>
-                            </div>
-                        </div>
+<div class="e eem-op">
+    <div class="k beem--b">
+        <div class="l">
+            <div class="m __lll"></div>
+        </div>
+    </div>
+</div>
 
                     </textarea>
                 </div>
 
             </div><!--
 
-            --><div class="col output">
+            --><div class="cssg-converter_col output">
                 <h2>
                     Output
                     <small>maximum DOM level: <span id="cssgLevels">0</span></small>
                 </h2>
 
-                <div class="content">
+                <div class="cssg-converter_content">
                     <textarea name="cssgOutput" id="cssgOutput" readonly cols="30" rows="10"></textarea>
                 </div>
 
@@ -128,9 +128,9 @@
 
         </div>
 
-        <div class="foot">
-            <div class="controls">
-                <button id="cssgInit">Process</button>
+        <div class="cssg-converter_foot">
+            <div class="cssg-converter_controls">
+                <button class="cssg-converter_btn" id="cssgInit">Process</button>
             </div>
         </div>
 

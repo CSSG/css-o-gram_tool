@@ -30,31 +30,33 @@ body, html {
 /* /Reset */
 /* Headers
 -------------------------------------------------- */
-h1, h2, h3 {
+.cssg-converter-container h1, .cssg-converter-container h2, .cssg-converter-container h3 {
   font-family: "Ubuntu", "Verdana", Arial, sans-serif; }
-
-h1 {
+.cssg-converter-container h1 {
   margin: 1.6rem 0;
   font-size: 2.8rem;
   color: #282828; }
-  h1 small {
+  .cssg-converter-container h1 small {
     display: block;
     margin: 1.6rem 0;
     color: #969696;
     font-size: 1.2rem;
     font-style: normal; }
-
-h2 {
+.cssg-converter-container h2 {
   margin: 0 0 1.6rem;
   padding-left: 1vw;
   border-left: 1vw solid #2e7dcb;
   color: #4f4f4f;
   font-size: 2.1rem; }
+  .cssg-converter-container h2 small {
+    padding-left: 2vw;
+    font-size: 12px;
+    color: #282828; }
 
 /* /Headers */
 /* Components
 -------------------------------------------------- */
-button {
+button.cssg-converter_btn {
   transition: background .2s ease-out;
   border-radius: 0.4rem;
   background: #2e7dcb;
@@ -67,19 +69,14 @@ button {
   border: 1px solid #ececec;
   cursor: pointer;
   outline: none; }
-  button:hover {
+  button.cssg-converter_btn:hover {
     background: #5496d8; }
-  button:active {
+  button.cssg-converter_btn:active {
     transform: translateY(2px); }
 
-.col {
+.cssg-converter_col {
   display: inline-block;
   vertical-align: top; }
-
-h2 small {
-  padding-left: 2vw;
-  font-size: 12px;
-  color: #282828; }
 
 /* /Components */
 /* Layout
@@ -91,10 +88,7 @@ h2 small {
   margin: 1.6rem 0;
   border: 2px solid #787878;
   color: #282828;
-  /* custom scroll */
-  /* head */
-  /* body */
-  /* footer */ }
+  /* custom scroll */ }
   .cssg-converter ::-webkit-scrollbar {
     width: 1vw; }
   .cssg-converter ::-webkit-scrollbar-track {
@@ -104,43 +98,49 @@ h2 small {
     background-color: #a7c9eb; }
     .cssg-converter ::-webkit-scrollbar-thumb:hover {
       background-color: #7db0e2; }
-  .cssg-converter .head {
-    padding: 1.6rem 0;
-    font-size: 1.6rem; }
-  .cssg-converter .body {
-    position: relative;
-    overflow-y: auto;
-    padding: 1.6rem 0;
-    border-top: 2px solid #dadada;
-    min-height: 380px; }
-    .cssg-converter .body .col {
-      width: 50%;
-      padding-left: 1vw;
-      box-sizing: border-box; }
-      .cssg-converter .body .col:first-child {
-        padding-left: 0;
-        padding-right: 1vw; }
-  .cssg-converter .foot {
-    padding: 0 0 10px;
-    font-size: 1.6rem; }
+
+/* head */
+.cssg-converter_head {
+  padding: 1.6rem 0;
+  font-size: 1.6rem; }
+
+/* body */
+.cssg-converter_body {
+  position: relative;
+  overflow-y: auto;
+  padding: 1.6rem 0;
+  border-top: 2px solid #dadada;
+  min-height: 380px; }
+  .cssg-converter_body .cssg-converter_col {
+    width: 50%;
+    padding-left: 1vw;
+    box-sizing: border-box; }
+    .cssg-converter_body .cssg-converter_col:first-child {
+      padding-left: 0;
+      padding-right: 1vw; }
+
+/* footer */
+.cssg-converter_foot {
+  padding: 0 0 10px;
+  font-size: 1.6rem; }
 
 /* /Layout */
 /* Controls
 -------------------------------------------------- */
-.controls .button {
+.cssg-converter_controls .cssg-converter_btn {
   margin-right: 2vw; }
 
 /* /Controls */
 /* Content
 -------------------------------------------------- */
-.content {
+.cssg-converter_content {
   font-family: "Courier New", monospace;
   background: #2e7dcb;
   font-size: 1.4rem;
   height: 380px;
   box-sizing: border-box;
   padding: 2px; }
-  .content textarea {
+  .cssg-converter_content textarea {
     font-family: "Courier New", monospace;
     border: 0 none;
     background: #2e7dcb;
@@ -152,7 +152,7 @@ h2 small {
     font-size: 1.4rem;
     color: #fefefe;
     box-sizing: border-box; }
-    .content textarea:focus {
+    .cssg-converter_content textarea:focus {
       outline: 2px solid #2563a1;
       outline-offset: 2px;
       background: #3382d1; }
@@ -160,21 +160,21 @@ h2 small {
 /* /Content */
 /* Settings
 -------------------------------------------------- */
-.settings {
+.cssg-converter_settings {
   margin: 1.6rem 0; }
-  .settings:last-child {
+  .cssg-converter_settings:last-child {
     margin-top: -0.4rem;
     margin-bottom: 0; }
 
-.cssg-setting {
+.cssg-converter_setting {
   transition: background .2s ease-out;
   margin: 0 0.4rem 0.4rem 0;
   background: #dadada;
   user-select: none; }
-  .cssg-setting:hover {
+  .cssg-converter_setting:hover {
     background: #787878;
     color: #fefefe; }
-  .cssg-setting label {
+  .cssg-converter_setting label {
     display: inline-block;
     vertical-align: middle;
     padding: 0.4rem 1vw;
