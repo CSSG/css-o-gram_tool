@@ -7,6 +7,20 @@
 ---------------------------------------------------------------------------------- */
 /* CSSG converter
 ---------------------------------------------------------------------------------- */
+/*
+	cssg-converter
+		cssg-converter_head
+			h2
+			#settings
+
+		cssg-converter_body
+			#editor . cssg-input
+			#editor . cssg-output
+
+		cssg-converter_foot
+			cssg-converter_controls
+				button . cssg-converter_btn
+*/
 /* Reset
 -------------------------------------------------- */
 html {
@@ -57,7 +71,7 @@ body, html {
 /* Components
 -------------------------------------------------- */
 button.cssg-converter_btn {
-  transition: background .2s ease-out;
+  transition: background .15s ease-out;
   border-radius: 0.4rem;
   background: #2e7dcb;
   color: #fefefe;
@@ -68,7 +82,8 @@ button.cssg-converter_btn {
   box-sizing: border-box;
   border: 1px solid #ececec;
   cursor: pointer;
-  outline: none; }
+  outline: none;
+  transition: transform .15s ease; }
   button.cssg-converter_btn:hover {
     background: #5496d8; }
   button.cssg-converter_btn:active {
@@ -107,17 +122,22 @@ button.cssg-converter_btn {
 /* body */
 .cssg-converter_body {
   position: relative;
-  overflow-y: auto;
   padding: 1.6rem 0;
-  border-top: 2px solid #dadada;
-  min-height: 380px; }
+  border-top: 2px solid #dadada; }
   .cssg-converter_body .cssg-converter_col {
-    width: 50%;
-    padding-left: 1vw;
-    box-sizing: border-box; }
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 1.6rem; }
     .cssg-converter_body .cssg-converter_col:first-child {
-      padding-left: 0;
-      padding-right: 1vw; }
+      margin-top: 0; }
+    @media screen and (min-width: 640px) {
+      .cssg-converter_body .cssg-converter_col {
+        width: 50%;
+        padding-left: 1vw;
+        margin-top: 0; }
+        .cssg-converter_body .cssg-converter_col:first-child {
+          padding-left: 0;
+          padding-right: 1vw; } }
 
 /* footer */
 .cssg-converter_foot {
@@ -133,13 +153,28 @@ button.cssg-converter_btn {
 /* /Controls */
 /* Content
 -------------------------------------------------- */
+/*
+	#editor
+
+	h2
+	cssg-converter_content
+		textarea
+
+*/
 .cssg-converter_content {
   font-family: "Courier New", monospace;
   background: #2e7dcb;
-  font-size: 1.4rem;
-  height: 380px;
+  font-size: 1.2rem;
+  height: 240px;
   box-sizing: border-box;
   padding: 2px; }
+  @media screen and (min-width: 640px) {
+    .cssg-converter_content {
+      height: 240px; } }
+  @media screen and (min-width: 800px) {
+    .cssg-converter_content {
+      font-size: 1.4rem;
+      height: 380px; } }
   .cssg-converter_content textarea {
     font-family: "Courier New", monospace;
     border: 0 none;
@@ -149,9 +184,12 @@ button.cssg-converter_btn {
     padding: 1vh 1vw;
     resize: none;
     overflow-y: scroll;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     color: #fefefe;
     box-sizing: border-box; }
+    @media screen and (min-width: 800px) {
+      .cssg-converter_content textarea {
+        font-size: 1.4rem; } }
     .cssg-converter_content textarea:focus {
       outline: 2px solid #2563a1;
       outline-offset: 2px;
@@ -160,6 +198,15 @@ button.cssg-converter_btn {
 /* /Content */
 /* Settings
 -------------------------------------------------- */
+/*
+	#settings
+
+	cssg-converter_settings +
+		cssg-converter_setting +
+			label
+				input
+				span
+*/
 .cssg-converter_settings {
   margin: 1.6rem 0; }
   .cssg-converter_settings:last-child {
@@ -167,18 +214,45 @@ button.cssg-converter_btn {
     margin-bottom: 0; }
 
 .cssg-converter_setting {
-  transition: background .2s ease-out;
-  margin: 0 0.4rem 0.4rem 0;
-  background: #dadada;
+  position: relative;
+  margin: 0 0.8rem 0.8rem 0;
+  font-size: 1.2rem;
+  white-space: nowrap;
+  -moz-user-select: none;
+  -webkit-user-select: none;
   user-select: none; }
-  .cssg-converter_setting:hover {
-    background: #787878;
-    color: #fefefe; }
+  @media screen and (min-width: 640px) {
+    .cssg-converter_setting {
+      font-size: 1.4rem; } }
+  @media screen and (min-width: 800px) {
+    .cssg-converter_setting {
+      font-size: 1.6rem; } }
+  .cssg-converter_setting input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    clip: rect(1px, 1px, 1px, 1px); }
   .cssg-converter_setting label {
     display: inline-block;
     vertical-align: middle;
+    padding: 0; }
+  .cssg-converter_setting span {
+    transition: background .15s ease-out;
+    transition: transform .15s ease;
+    display: inline-block;
+    vertical-align: middle;
     padding: 0.4rem 1vw;
-    cursor: pointer; }
+    cursor: pointer;
+    background: #dadada; }
+    .cssg-converter_setting span:active {
+      transform: translateY(2px); }
+  .cssg-converter_setting label:hover span {
+    background: #787878;
+    color: #fefefe; }
+  .cssg-converter_setting input:checked + span {
+    box-shadow: inset 0 1px 1px 1px #8d8d8d; }
+  .cssg-converter_setting label:hover input:checked + span {
+    box-shadow: inset 0 1px 1px 1px #454545; }
 
 /* /Settings */
 /* /CSSG converter
