@@ -28,8 +28,13 @@ $bg-brand: rgb(46, 125, 203);
 $bg-inv: rgb(50,50,50);
 
 $h-text: 380px;
+$h-text-s: 240px;
 
 $line: 1.6rem;
+
+$media-s: "screen and (min-width: 640px)";
+$media-m: "screen and (min-width: 800px)";
+$media: "screen and (min-width: 960px)";
 
 @mixin monospace {
 	font-family: $ff-text;
@@ -40,7 +45,15 @@ $line: 1.6rem;
 	}
 
 @mixin fade {
-	transition: background .2s ease-out;
+	transition: background .15s ease-out;
+	}
+
+@mixin active {
+	transition: transform .15s ease;
+
+	&:active {
+		transform: translateY(2px);
+		}
 	}
 
 /* /Vars
@@ -50,6 +63,21 @@ $line: 1.6rem;
 
 /* CSSG converter
 ---------------------------------------------------------------------------------- */
+
+/*
+	cssg-converter
+		cssg-converter_head
+			h2
+			#settings
+
+		cssg-converter_body
+			#editor . cssg-input
+			#editor . cssg-output
+
+		cssg-converter_foot
+			cssg-converter_controls
+				button . cssg-converter_btn
+*/
 
 /* Reset
 -------------------------------------------------- */
@@ -149,9 +177,7 @@ button.cssg-converter_btn {
 		background: lighten($bg-brand, 10%);
 		}
 
-	&:active {
-		transform: translateY(2px);
-		}
+	@include active;
 	}
 
 .cssg-converter_col {
@@ -208,20 +234,28 @@ button.cssg-converter_btn {
 
 .cssg-converter_body {
 	position: relative;
-	overflow-y: auto;
 	padding: $line 0;
 
 	border-top: 2px solid $bg-aux2;
-	min-height: $h-text;
 
 	.cssg-converter_col {
-		width: 50%;
-		padding-left: 1vw;
+		width: 100%;
 		box-sizing: border-box;
+		margin-top: $line;
 
 		&:first-child {
-			padding-left: 0;
-			padding-right: 1vw;
+			margin-top: 0;
+			}
+
+		@media #{$media-s} {
+			width: 50%;
+			padding-left: 1vw;
+			margin-top: 0;
+
+			&:first-child {
+				padding-left: 0;
+				padding-right: 1vw;
+				}
 			}
 		}
 	}
@@ -252,14 +286,32 @@ button.cssg-converter_btn {
 /* Content
 -------------------------------------------------- */
 
+/*
+	#editor
+
+	h2
+	cssg-converter_content
+		textarea
+
+*/
+
 .cssg-converter_content {
 	@include monospace;
 
 	background: $bg-brand;
-	font-size: $fs-n;
-	height: $h-text;
+	font-size: $fs-s;
+	height: $h-text-s;
 	box-sizing: border-box;
 	padding: 2px;
+
+	@media #{$media-s} {
+		height: $h-text-s;
+		}
+
+	@media #{$media-m} {
+		font-size: $fs-n;
+		height: $h-text;
+		}
 
 	textarea {
 		@include monospace;
@@ -273,10 +325,14 @@ button.cssg-converter_btn {
 		resize: none;
 		overflow-y: scroll;
 
-		font-size: $fs-n;
+		font-size: $fs-s;
 
 		color: $c-inv;
 		box-sizing: border-box;
+
+		@media #{$media-m} {
+			font-size: $fs-n;
+			}
 
 		&:focus {
 			outline: 2px solid darken($bg-brand, 10%);
@@ -292,6 +348,16 @@ button.cssg-converter_btn {
 /* Settings
 -------------------------------------------------- */
 
+/*
+	#settings
+
+	cssg-converter_settings +
+		cssg-converter_setting +
+			label
+				input
+				span
+*/
+
 .cssg-converter_settings {
 	margin: $line 0;
 
@@ -302,23 +368,61 @@ button.cssg-converter_btn {
 	}
 
 .cssg-converter_setting {
-	@include fade;
+	position: relative;
+	margin: 0 ($line / 2) ($line / 2) 0;
+	font-size: $fs-s;
+	white-space: nowrap;
 
-	margin: 0 ($line / 4) ($line / 4) 0;
-	background: $bg-aux2;
+	-moz-user-select: none;
+	-webkit-user-select: none;
 	user-select: none;
 
-	&:hover {
-		background: $bg-alt;
-		color: $c-inv;
+	@media #{$media-s} {
+		font-size: $fs-n;
+		}
+
+	@media #{$media-m} {
+		font-size: $fs-l;
+		}
+
+	// hide checkboxes
+	input {
+		position: absolute;
+		top: 0; left: 0;
+		clip: rect(1px,1px,1px,1px);
 		}
 
 	label {
 		display: inline-block;
 		vertical-align: middle;
+		padding: 0;
+		}
+
+	span {
+		@include fade;
+		@include active;
+
+		display: inline-block;
+		vertical-align: middle;
 		padding: ($line / 4) 1vw;
 		cursor: pointer;
+
+		background: $bg-aux2;
 		}
+
+		label:hover span {
+			background: $bg-alt;
+			color: $c-inv;
+			}
+
+		input:checked + span {
+			box-shadow: inset 0 1px 1px 1px darken($bg-aux2, 30%);
+			}
+
+			label:hover input:checked + span {
+				box-shadow: inset 0 1px 1px 1px darken($bg-alt, 20%);
+				}
+
 	}
 
 /* /Settings */
